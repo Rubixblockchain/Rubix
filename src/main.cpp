@@ -2531,8 +2531,15 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                 return DoS(100, error("CheckBlock() : more than one coinstake"));
 
         // Verify coin stake tx includes devops payment
-        if (1 > 0) {
-            LOCK2(cs_main, mempool.cs);
+        bool DevopsPayments = false;
+        bool fIsInitialDownload = IsInitialBlockDownload();
+
+        if(nTime > START_DEVOPS_PAYMENTS) DevopsPayments = true;
+        if (!fIsInitialDownload)
+        {
+            if(DevopsPayments)
+            {
+                LOCK2(cs_main, mempool.cs);
 
             CBlockIndex *pindex = pindexBest;
             if(pindex != NULL){
@@ -2585,7 +2592,9 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
         }
        }
       }
+     }
     }
+
 
     // Check proof-of-stake block signature
     if (fCheckSig && !CheckBlockSignature())
