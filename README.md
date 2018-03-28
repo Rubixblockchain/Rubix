@@ -33,7 +33,7 @@ RPC Port: 20167
 
 BUILD LINUX
 -----------
-1) git clone https://github.com/CryptoCoderz/RBX
+1) git clone https://github.com/Rubixblockchain/Rubix
 
 2) cd RBX/src
 
