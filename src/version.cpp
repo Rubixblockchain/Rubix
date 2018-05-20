@@ -36,8 +36,8 @@ const std::string CLIENT_NAME("Rubix-core");
 // git will put "#define GIT_ARCHIVE 1" on the next line inside archives. 
 #define GIT_ARCHIVE 1
 #ifdef GIT_ARCHIVE
-#    define GIT_COMMIT_ID "Rubix-v2-prototype-03"
-#    define GIT_COMMIT_DATE "Mar 22, 2018" //$Format:%cD
+#    define GIT_COMMIT_ID "Rubix-v2-prototype-04"
+#    define GIT_COMMIT_DATE "May 19, 2018" //$Format:%cD
 #endif
 
 #define BUILD_DESC_FROM_COMMIT(maj,min,rev,build,commit) \

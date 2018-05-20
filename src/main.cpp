@@ -2537,7 +2537,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
         if(nTime > START_DEVOPS_PAYMENTS) DevopsPayments = true;
         if (!fIsInitialDownload)
         {
-            if(DevopsPayments)
+            if(DevopsPayments && Params().NetworkID() == CChainParams::TESTNET)
             {
                 LOCK2(cs_main, mempool.cs);
 
