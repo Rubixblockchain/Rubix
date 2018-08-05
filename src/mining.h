@@ -25,11 +25,11 @@ static const int64_t COIN_YEAR_REWARD = 8.2 * CENT; // Corrected in v2.0.0.0+
 /** PoS Superblock Reward */
 static const int64_t COIN_SPRB_REWARD = 12 * CENT; // Corrected in v2.0.0.0+
 /** Block spacing preferred */
-static const int64_t BLOCK_SPACING = 5 * 60;
+static const int64_t BLOCK_SPACING = 5 * 60; // 5 minutes and 0 seconds
 /** Block spacing minimum */
-static const int64_t BLOCK_SPACING_MIN = 3.5 * 60;
+static const int64_t BLOCK_SPACING_MIN = 3.5 * 60; // 3 minutes and 30 seconds
 /** Block spacing maximum */
-static const int64_t BLOCK_SPACING_MAX = 7.5 * 60;
+static const int64_t BLOCK_SPACING_MAX = 5.5 * 60; // 5 minutes and 30 seconds
 /** Desired block times/spacing */
 static const int64_t GetTargetSpacing = BLOCK_SPACING;
 /** Darksend collateral */
@@ -37,7 +37,7 @@ static const int64_t DARKSEND_COLLATERAL = (0.01*COIN);
 /** Darksend pool values */
 static const int64_t DARKSEND_POOL_MAX = (4999.99*COIN);
 /** MasterNode required collateral */
-inline int64_t MasternodeCollateral(int nHeight) { return 50000250; } // 50.00025M RBX required as collateral
+inline int64_t MasternodeCollateral(int nHeight) { return 625000; } // .625 Million RBX required as collateral
 /** Coinbase transaction outputs can only be staked after this number of new blocks (network rule) */
 static const int nStakeMinConfirmations = 12;
 /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
