@@ -17,7 +17,9 @@ static const int64_t nReservePhaseEnd = 3; //
 static const int64_t VELOCITY_TOGGLE = 120; // Implementation of the Velocity system into the chain.
 /** Velocity retarget toggle block */
 static const int64_t VELOCITY_TDIFF = 0; // Use Velocity's retargetting method.
-/** Protocol toggle */
+/** Protocol 3.0 toggle */
 inline bool IsProtocolV3(int64_t nTime) { return TestNet() || nTime > 1493596800; } // Mon, 01 May 2017 00:00:00 GMT
+/** Protocol 3.1 toggle */
+inline bool IsProtocolV3_1(int64_t nTime) { return TestNet() || nTime > 1535697055; } // Friday, August 31, 2018 6:30:55 AM
 
 #endif // BITCOIN_FORK_H

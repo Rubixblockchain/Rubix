@@ -398,7 +398,13 @@ int64_t GetProofOfWorkReward(int nHeight, int64_t nFees)
     if(nHeight > nReservePhaseStart && nHeight < nReservePhaseEnd) {
       nSubsidy = nBlockRewardReserve;
     }
-    if(randreward() <= 170000 && nHeight > nReservePhaseEnd) // 17% Chance of superblock
+
+    int chance = 17000;
+
+    if(IsProtocolV3_1(pindexBest->GetBlockTime()))
+        chance *= 10;
+
+    if(randreward() <= chance && nHeight > nReservePhaseEnd) // 17% Chance of superblock
         nSubsidy *= nSuperModifier; // x2
 
     // hardCap v2.1
@@ -419,7 +425,12 @@ int64_t GetProofOfStakeReward(const CBlockIndex* pindexPrev, int64_t nCoinAge, i
 {
     int64_t nSubsidy = nCoinAge * COIN_YEAR_REWARD * 33 / (365 * 33 + 8);
 
-    if(randreward() <= 170000) // 17% Chance of superblock
+    int chance = 17000;
+
+    if(IsProtocolV3_1(pindexBest->GetBlockTime()))
+        chance *= 10;
+
+    if(randreward() <= chance) // 17% Chance of superblock
         nSubsidy = nCoinAge * COIN_SPRB_REWARD * 33 / (365 * 33 + 8);
 
     // hardCap v2.1
@@ -439,6 +450,9 @@ int64_t GetProofOfStakeReward(const CBlockIndex* pindexPrev, int64_t nCoinAge, i
 int64_t GetMasternodePayment(int nHeight, int64_t blockValue)
 {
     int64_t ret = (blockValue * 45) / 100; // 45%
+
+    if(!IsProtocolV3_1(pindexBest->GetBlockTime()))
+        ret = (blockValue * 85) / 100; // 85%
 
     return ret;
 }

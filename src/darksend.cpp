@@ -2100,7 +2100,7 @@ bool CDarkSendSigner::IsVinAssociatedWithPubkey(CTxIn& vin, CPubKey& pubkey){
     //if(GetTransaction(vin.prevout.hash, txVin, hash, true)){
     if(GetTransaction(vin.prevout.hash, txVin, hash)){
         BOOST_FOREACH(CTxOut out, txVin.vout){
-            if(out.nValue == MasternodeCollateral(pindexBest->nHeight)*COIN){
+            if(out.nValue == MasternodeCollateral(pindexBest->nHeight, pindexBest->GetBlockTime())*COIN){
                 if(out.scriptPubKey == payee2) return true;
             }
         }
