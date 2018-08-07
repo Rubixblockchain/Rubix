@@ -7,6 +7,7 @@
 #define BITCOIN_MINING_H
 
 #include "bignum.h"
+#include "fork.h"
 
 /** Minimum nCoinAge required to stake PoS */
 static const unsigned int nStakeMinAge = 2 / 60; // 30 minutes
@@ -29,15 +30,19 @@ static const int64_t BLOCK_SPACING = 5 * 60; // 5 minutes and 0 seconds
 /** Block spacing minimum */
 static const int64_t BLOCK_SPACING_MIN = 3.5 * 60; // 3 minutes and 30 seconds
 /** Block spacing maximum */
-static const int64_t BLOCK_SPACING_MAX = 5.5 * 60; // 5 minutes and 30 seconds
+static const int64_t BLOCK_SPACING_MAX = 7.5 * 60; // 7 minutes and 30 seconds
 /** Desired block times/spacing */
 static const int64_t GetTargetSpacing = BLOCK_SPACING;
 /** Darksend collateral */
 static const int64_t DARKSEND_COLLATERAL = (0.01*COIN);
 /** Darksend pool values */
 static const int64_t DARKSEND_POOL_MAX = (4999.99*COIN);
-/** MasterNode required collateral */
-inline int64_t MasternodeCollateral(int nHeight) { return 625000; } // .625 Million RBX required as collateral
+/** MasterNode required collateral (Legacy) */
+inline int64_t MasternodeCollateral_v1(int nHeight) { return 50000250; } // 50.00025M RBX required as collateral
+/** MasterNode required collateral (Current) */
+inline int64_t MasternodeCollateral_v2(int nHeight) { return 625000; } // .625 Million RBX required as collateral
+/** MasterNode required collateral (Toggle) */
+inline int64_t MasternodeCollateral(int nHeight, int nProtocolTime) { return IsProtocolV3_1(nProtocolTime) ? MasternodeCollateral_v2(nHeight) : MasternodeCollateral_v1(nHeight); }
 /** Coinbase transaction outputs can only be staked after this number of new blocks (network rule) */
 static const int nStakeMinConfirmations = 12;
 /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */

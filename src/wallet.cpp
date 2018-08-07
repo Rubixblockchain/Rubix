@@ -1647,11 +1647,11 @@ void CWallet::AvailableCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const
                 if(coin_type == ONLY_DENOMINATED) {
                     found = IsDenominatedAmount(pcoin->vout[i].nValue);
                 } else if(coin_type == ONLY_NOT10000IFMN) {
-                    found = !(fMasterNode && pcoin->vout[i].nValue == MasternodeCollateral(pindexBest->nHeight)*COIN);
+                    found = !(fMasterNode && pcoin->vout[i].nValue == MasternodeCollateral(pindexBest->nHeight, pindexBest->GetBlockTime())*COIN);
                 } else if (coin_type == ONLY_NONDENOMINATED_NOT10000IFMN){
                     if (IsCollateralAmount(pcoin->vout[i].nValue)) continue; // do not use collateral amounts
                     found = !IsDenominatedAmount(pcoin->vout[i].nValue);
-                    if(found && fMasterNode) found = pcoin->vout[i].nValue != MasternodeCollateral(pindexBest->nHeight)*COIN; // do not use Hot MN funds
+                    if(found && fMasterNode) found = pcoin->vout[i].nValue != MasternodeCollateral(pindexBest->nHeight, pindexBest->GetBlockTime())*COIN; // do not use Hot MN funds
                 } else {
                     found = true;
                 }
@@ -1704,11 +1704,11 @@ void CWallet::AvailableCoinsMN(vector<COutput>& vCoins, bool fOnlyConfirmed, con
                 if(coin_type == ONLY_DENOMINATED) {
                     found = IsDenominatedAmount(pcoin->vout[i].nValue);
                 } else if(coin_type == ONLY_NOT10000IFMN) {
-                    found = !(fMasterNode && pcoin->vout[i].nValue == MasternodeCollateral(pindexBest->nHeight)*COIN);
+                    found = !(fMasterNode && pcoin->vout[i].nValue == MasternodeCollateral(pindexBest->nHeight, pindexBest->GetBlockTime())*COIN);
                 } else if (coin_type == ONLY_NONDENOMINATED_NOT10000IFMN){
                     if (IsCollateralAmount(pcoin->vout[i].nValue)) continue; // do not use collateral amounts
                     found = !IsDenominatedAmount(pcoin->vout[i].nValue);
-                    if(found && fMasterNode) found = pcoin->vout[i].nValue != MasternodeCollateral(pindexBest->nHeight)*COIN; // do not use Hot MN funds
+                    if(found && fMasterNode) found = pcoin->vout[i].nValue != MasternodeCollateral(pindexBest->nHeight, pindexBest->GetBlockTime())*COIN; // do not use Hot MN funds
                 } else {
                     found = true;
                 }
@@ -1762,7 +1762,7 @@ void CWallet::AvailableCoinsForStaking(vector<COutput>& vCoins, unsigned int nSp
                     found = true;
                     break;
                 }
-                if (pcoin->vout[i].nValue == MasternodeCollateral(pindexBest->nHeight)*COIN){
+                if (pcoin->vout[i].nValue == MasternodeCollateral(pindexBest->nHeight, pindexBest->GetBlockTime())*COIN){
 
                     //LogPrintf("CWallet::AvailableCoinsForStaking - Found Masternode collateral.\n");
                     found = true;
@@ -2179,7 +2179,7 @@ bool CWallet::SelectCoinsDark(CAmount nValueMin, CAmount nValueMax, std::vector<
         if(out.tx->vout[out.i].nValue < CENT) continue;
         //do not allow collaterals to be selected
         if(IsCollateralAmount(out.tx->vout[out.i].nValue)) continue;
-        if(fMasterNode && out.tx->vout[out.i].nValue == MasternodeCollateral(pindexBest->nHeight)*COIN) continue; //masternode input
+        if(fMasterNode && out.tx->vout[out.i].nValue == MasternodeCollateral(pindexBest->nHeight, pindexBest->GetBlockTime())*COIN) continue; //masternode input
 
         if(nValueRet + out.tx->vout[out.i].nValue <= nValueMax){
             CTxIn vin = CTxIn(out.tx->GetHash(),out.i);
