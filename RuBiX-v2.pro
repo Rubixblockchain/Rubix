@@ -24,9 +24,9 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 # as a reference refer to the below section
 
 win32{
-BOOST_LIB_SUFFIX=-mgw81-mt-s-x32-1_67
-BOOST_INCLUDE_PATH=C:/deps/boost_1_67_0
-BOOST_LIB_PATH=C:/deps/boost_1_67_0/stage/lib
+BOOST_LIB_SUFFIX=-mgw81-mt-s-x32-1_68
+BOOST_INCLUDE_PATH=C:/deps/boost_1_68_0
+BOOST_LIB_PATH=C:/deps/boost_1_68_0/stage/lib
 BDB_INCLUDE_PATH=C:/deps/db-6.2.32.NC/build_unix
 BDB_LIB_PATH=C:/deps/db-6.2.32.NC/build_unix
 OPENSSL_INCLUDE_PATH=C:/deps/openssl-1.0.2o/include
@@ -87,6 +87,7 @@ win32:QMAKE_LFLAGS *= -Wl,--dynamicbase -Wl,--nxcompat
 win32:QMAKE_LFLAGS *= -Wl,--large-address-aware -static
 # i686-w64-mingw32
 win32:QMAKE_LFLAGS *= -static-libgcc -static-libstdc++
+
 # use: qmake "USE_QRCODE=1"
 # libqrencode (http://fukuchi.org/works/qrencode/index.en.html) must be installed for support
 contains(USE_QRCODE, 1) {
@@ -134,8 +135,7 @@ INCLUDEPATH += src/leveldb/include src/leveldb/helpers
 LIBS += $$PWD/src/leveldb/libleveldb.a $$PWD/src/leveldb/libmemenv.a
 SOURCES += src/txdb-leveldb.cpp
 !win32 {
-    # we use QMAKE_CXXFLAGS_RELEASE even without RELEASE=1 because we use RELEASE to indicate linking preferences not -O preferences
-    genleveldb.commands = cd $$PWD/src/leveldb && CC=$$QMAKE_CC CXX=$$QMAKE_CXX $(MAKE) OPT=\"$$QMAKE_CXXFLAGS $$QMAKE_CXXFLAGS_RELEASE\" libleveldb.a libmemenv.a
+    # genleveldb.commands = cd $$PWD/src/leveldb && chmod 755 ./build_detect_platform && CC=$$QMAKE_CC CXX=$$QMAKE_CXX TARGET_OS=OS_WINDOWS_CROSSCOMPILE $(MAKE) OPT=\"$$QMAKE_CXXFLAGS $$QMAKE_CXXFLAGS_RELEASE\" libleveldb.a libmemenv.a && $$QMAKE_RANLIB $$PWD/src/leveldb/libleveldb.a && $$QMAKE_RANLIB $$PWD/src/leveldb/libmemenv.a
 } else {
     # make an educated guess about what the ranlib command is called
     isEmpty(QMAKE_RANLIB) {
@@ -157,7 +157,7 @@ INCLUDEPATH += src/secp256k1/include
 LIBS += $$PWD/src/secp256k1/src/libsecp256k1_la-secp256k1.o
 !win32 {
     # we use QMAKE_CXXFLAGS_RELEASE even without RELEASE=1 because we use RELEASE to indicate linking preferences not -O preferences
-    gensecp256k1.commands = cd $$PWD/src/secp256k1 && ./autogen.sh && ./configure --enable-module-recovery && CC=$$QMAKE_CC CXX=$$QMAKE_CXX $(MAKE) OPT=\"$$QMAKE_CXXFLAGS $$QMAKE_CXXFLAGS_RELEASE\"
+    gensecp256k1.commands = cd $$PWD/src/secp256k1 && chmod 755 ./autogen.sh && ./autogen.sh && ./configure --enable-module-recovery && CC=$$QMAKE_CC CXX=$$QMAKE_CXX $(MAKE) OPT=\"$$QMAKE_CXXFLAGS $$QMAKE_CXXFLAGS_RELEASE\"
 }
 gensecp256k1.target = $$PWD/src/secp256k1/src/libsecp256k1_la-secp256k1.o
 gensecp256k1.depends = FORCE

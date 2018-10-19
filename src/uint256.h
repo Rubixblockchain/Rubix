@@ -21,6 +21,11 @@ inline signed char HexDigit(char c)
     return p_util_hexdigit[(unsigned char)c];
 }
 
+inline signed char HexDigit(char c)
+{
+    return p_util_hexdigit[(unsigned char)c];
+}
+
 /** Base class without constructors for uint256 and uint160.
  * This makes the compiler let u use it in a union.
  */
