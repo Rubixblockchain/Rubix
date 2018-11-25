@@ -13,6 +13,7 @@ src/build.h
 .RuBiX
 #compilation and Qt preprocessor part
 *.qm
+*.qm.stash
 .qmake.stash
 Makefile
 RuBiX-qt
