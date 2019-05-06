@@ -103,6 +103,7 @@ public:
 
         nPoolMaxTransactions = 3;
         strDarksendPoolDummyAddress = "RmTXZQ9W92y13UkyEoxcEsbjA6oZeQUFZu";
+        strDevOpsAddress = "RmG7TTPEJDhNAvK4jy2oShizc8WmeF7pKH";
         nEndPoWBlock = 0x7fffffff;
         nStartPoSBlock = 0;
     }
