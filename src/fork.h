@@ -11,8 +11,12 @@
 static const int64_t nGenesisHeight = 0;
 /** Reserve Phase start block */ 
 static const int64_t nReservePhaseStart = 1;
+/** Masternode/Devops Payment Update 1 **/
+static const int64_t nPaymentUpdate_1 = 1560891466; // Tuesday, June 18, 2019 8:57:46 PM
+/** Masternode/Devops Payment Update 2 **/
+static const int64_t nPaymentUpdate_2 = 9993058800; // OFF
 /** Reserve Phase end block */ 
-static const int64_t nReservePhaseEnd = 3; // 
+static const int64_t nReservePhaseEnd = 3; // NEVER DO THIS AGAIN
 /** Velocity toggle block */
 static const int64_t VELOCITY_TOGGLE = 120; // Implementation of the Velocity system into the chain.
 /** Velocity retarget toggle block */

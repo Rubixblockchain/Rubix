@@ -3392,6 +3392,12 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     txNew.vin.clear();
     txNew.vout.clear();
 
+    // OLD IMPLEMENTATION COMMNETED OUT
+    //
+    // Determine our payment script for devops
+    // CScript devopsScript;
+    // devopsScript << OP_DUP << OP_HASH160 << ParseHex(Params().DevOpsPubKey()) << OP_EQUALVERIFY << OP_CHECKSIG;
+
     // Mark coin stake transaction
     CScript scriptEmpty;
     scriptEmpty.clear();
@@ -3552,11 +3558,12 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     // define address
     CBitcoinAddress devopaddress;
     if (Params().NetworkID() == CChainParams::MAIN)
-        devopaddress = CBitcoinAddress("RmG7TTPEJDhNAvK4jy2oShizc8WmeF7pKH");
+        devopaddress = CBitcoinAddress("RmG7TTPEJDhNAvK4jy2oShizc8WmeF7pKH"); // TODO: nothing, already set to a valid Rubix address
     else if (Params().NetworkID() == CChainParams::TESTNET)
         devopaddress = CBitcoinAddress("");
     else if (Params().NetworkID() == CChainParams::REGTEST)
         devopaddress = CBitcoinAddress("");
+
 
     // Masternode Payments
     int payments = 1;
@@ -3612,7 +3619,9 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
         LogPrintf("Masternode payment to %s\n", address2.ToString().c_str());
     }
 
-    // TODO: Activate devops
+    // TODO: Clean this up, it's a mess (could be done much more cleanly)
+    //       Not an issue otherwise, merely a pet peev. Done in a rush...
+    //
     // DevOps Payments
     int devoppay = 1;
     // start devops payments
@@ -3640,6 +3649,15 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
 
     bool hasdevopsPay = true;
     if(bDevOpsPayment) {
+        // define address
+        CBitcoinAddress devopaddress;
+        if (Params().NetworkID() == CChainParams::MAIN)
+            devopaddress = CBitcoinAddress("RmG7TTPEJDhNAvK4jy2oShizc8WmeF7pKH"); // TODO: nothing, already set to a valid Rubix address
+        else if (Params().NetworkID() == CChainParams::TESTNET)
+            devopaddress = CBitcoinAddress("");
+        else if (Params().NetworkID() == CChainParams::REGTEST)
+            devopaddress = CBitcoinAddress("");
+
         // verify address
         if(devopaddress.IsValid())
         {
