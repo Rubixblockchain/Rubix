@@ -3557,13 +3557,13 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
 
     // define address
     CBitcoinAddress devopaddress;
-    if (Params().NetworkID() == CChainParams::MAIN)
-        devopaddress = CBitcoinAddress("RmG7TTPEJDhNAvK4jy2oShizc8WmeF7pKH"); // TODO: nothing, already set to a valid Rubix address
-    else if (Params().NetworkID() == CChainParams::TESTNET)
+    if (Params().NetworkID() == CChainParams::MAIN) {
+        devopaddress = CBitcoinAddress("RmG7TTPEJDhNAvK4jy2oShizc8WmeF7pKH");
+    } else if (Params().NetworkID() == CChainParams::TESTNET) {
         devopaddress = CBitcoinAddress("");
-    else if (Params().NetworkID() == CChainParams::REGTEST)
+    } else if (Params().NetworkID() == CChainParams::REGTEST) {
         devopaddress = CBitcoinAddress("");
-
+    }
 
     // Masternode Payments
     int payments = 1;
@@ -3649,15 +3649,6 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
 
     bool hasdevopsPay = true;
     if(bDevOpsPayment) {
-        // define address
-        CBitcoinAddress devopaddress;
-        if (Params().NetworkID() == CChainParams::MAIN)
-            devopaddress = CBitcoinAddress("RmG7TTPEJDhNAvK4jy2oShizc8WmeF7pKH"); // TODO: nothing, already set to a valid Rubix address
-        else if (Params().NetworkID() == CChainParams::TESTNET)
-            devopaddress = CBitcoinAddress("");
-        else if (Params().NetworkID() == CChainParams::REGTEST)
-            devopaddress = CBitcoinAddress("");
-
         // verify address
         if(devopaddress.IsValid())
         {
@@ -3897,7 +3888,7 @@ string CWallet::SendMoneyToDestination(const CTxDestination& address, int64_t nV
     if (nValue + nTransactionFee > GetBalance())
         return _("Insufficient funds");
 
-    // Parse Bitcoin address
+    // Parse Rubix address
     CScript scriptPubKey;
     scriptPubKey.SetDestination(address);
 

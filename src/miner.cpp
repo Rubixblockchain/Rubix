@@ -16,7 +16,7 @@ using namespace std;
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// BitcoinMiner
+// Rubix-Miner
 //
 
 extern unsigned int nMinerSleep;
@@ -72,7 +72,6 @@ public:
         dPriority = dFeePerKb = 0;
     }
 };
-
 
 uint64_t nLastBlockTx = 0;
 uint64_t nLastBlockSize = 0;
@@ -373,7 +372,7 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
 
             // Check for payment update fork
             if(pindexBest->GetBlockTime() > 0){
-                if(pindexBest->GetBlockTime() > nPaymentUpdate_1){ // Sunday, June 16, 2019 9:56:07 AM
+                if(pindexBest->GetBlockTime() > nLiveForkToggle){ // TODO: Verify upgrade
                     // masternode/devops payment
                     int64_t blockReward = GetProofOfWorkReward(pindexPrev->nHeight + 1, nFees);
                     bool hasPayment = true;
@@ -393,14 +392,15 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
                     //
                     // TODO: Clean this up, it's a mess (could be done much more cleanly)
                     //       Not an issue otherwise, merely a pet peev. Done in a rush...
-                    //
+                    // 
                     CBitcoinAddress devopaddress;
-                    if (Params().NetworkID() == CChainParams::MAIN)
-                        devopaddress = CBitcoinAddress("dSCXLHTZJJqTej8ZRszZxbLrS6dDGVJhw7"); // TODO: nothing, already set to a valid DigitalNote address
-                    else if (Params().NetworkID() == CChainParams::TESTNET)
+                    if (Params().NetworkID() == CChainParams::MAIN) {
+                        devopaddress = CBitcoinAddress("RmG7TTPEJDhNAvK4jy2oShizc8WmeF7pKH");
+                    } else if (Params().NetworkID() == CChainParams::TESTNET) {
                         devopaddress = CBitcoinAddress("");
-                    else if (Params().NetworkID() == CChainParams::REGTEST)
+                    } else if (Params().NetworkID() == CChainParams::REGTEST) {
                         devopaddress = CBitcoinAddress("");
+                    }
 
                     // verify address
                     if(devopaddress.IsValid())
@@ -458,14 +458,13 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
             } //
         }
 
-        if (pFees) {
+        if (pFees)
             *pFees = nFees;
 
         // Fill in header
         pblock->hashPrevBlock  = pindexPrev->GetBlockHash();
         pblock->nTime          = max(pindexPrev->GetPastTimeLimit()+1, pblock->GetMaxTransactionTime());
-        }
-        if (!fProofOfStake) {
+        if (!fProofOfStake)
             pblock->UpdateTime(pindexPrev);
         pblock->nNonce         = 0;
     }
@@ -474,23 +473,23 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
 }
 
 
-void IncrementExtraNonce(CBlock* pblock, CBlockIndex* pindexPrev, unsigned int& nExtraNonce)
-{
-    // Update nExtraNonce
-    static uint256 hashPrevBlock;
-    if (hashPrevBlock != pblock->hashPrevBlock)
+    void IncrementExtraNonce(CBlock* pblock, CBlockIndex* pindexPrev, unsigned int& nExtraNonce)
     {
-        nExtraNonce = 0;
-        hashPrevBlock = pblock->hashPrevBlock;
+        // Update nExtraNonce
+        static uint256 hashPrevBlock;
+        if (hashPrevBlock != pblock->hashPrevBlock)
+        {
+            nExtraNonce = 0;
+            hashPrevBlock = pblock->hashPrevBlock;
+        }
+        ++nExtraNonce;
+
+        unsigned int nHeight = pindexPrev->nHeight+1; // Height first in coinbase required for block.version=2
+        pblock->vtx[0].vin[0].scriptSig = (CScript() << nHeight << CBigNum(nExtraNonce)) + COINBASE_FLAGS;
+        assert(pblock->vtx[0].vin[0].scriptSig.size() <= 100);
+
+        pblock->hashMerkleRoot = pblock->BuildMerkleTree();
     }
-    ++nExtraNonce;
-
-    unsigned int nHeight = pindexPrev->nHeight+1; // Height first in coinbase required for block.version=2
-    pblock->vtx[0].vin[0].scriptSig = (CScript() << nHeight << CBigNum(nExtraNonce)) + COINBASE_FLAGS;
-    assert(pblock->vtx[0].vin[0].scriptSig.size() <= 100);
-
-    pblock->hashMerkleRoot = pblock->BuildMerkleTree();
-}
 
 
 void FormatHashBuffers(CBlock* pblock, char* pmidstate, char* pdata, char* phash1)
