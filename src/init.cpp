@@ -292,17 +292,6 @@ strUsage += "\n" + _("Masternode options:") + "\n";
     strUsage += "  -masternodeaddr=<n>        " + _("Set external address:port to get to this masternode (example: address:port)") + "\n";
     strUsage += "  -masternodeminprotocol=<n> " + _("Ignore masternodes less than version (example: 61401; default : 0)") + "\n";
 
-
-    strUsage += "\n" + _("InstantX options:") + "\n";
-    strUsage += "  -enableinstantx=<n>    " + _("Enable instantx, show confirmations for locked transactions (bool, default: true)") + "\n";
-    strUsage += "  -instantxdepth=<n>     " + strprintf(_("Show N confirmations for a successfully locked transaction (0-9999, default: %u)"), nInstantXDepth) + "\n"; 
-    strUsage += _("Secure messaging options:") + "\n" +
-        "  -nosmsg                                  " + _("Disable secure messaging.") + "\n" +
-        "  -debugsmsg                               " + _("Log extra debug messages.") + "\n" +
-        "  -smsgscanchain                           " + _("Scan the block chain for public key addresses on startup.") + "\n";
-    strUsage += "  -stakethreshold=<n> " + _("This will set the output size of your stakes to never be below this number (default: 100)") + "\n";
-        strUsage += "  -liveforktoggle=<n> " + _("Toggle experimental features via block height testing fork, (example: -command=<fork_height>)") + "\n";
-
     strUsage += "\n" + _("Darksend options:") + "\n";
     strUsage += "  -enabledarksend=<n>          " + _("Enable use of automated darksend for funds stored in this wallet (0-1, default: 0)") + "\n";
     strUsage += "  -darksendrounds=<n>          " + _("Use N separate masternodes to anonymize funds  (2-8, default: 2)") + "\n";
@@ -566,9 +555,6 @@ bool AppInit2(boost::thread_group& threadGroup)
 
     //ignore masternodes below protocol version
     nMasternodeMinProtocol = GetArg("-masternodeminprotocol", MIN_POOL_PEER_PROTO_VERSION);
-
-    //log startup time for advanced Masternode checks delay (required for proper sync)
-    nMasterNodeChecksDelayBaseTime = GetTime();
 
     if (fDaemon)
         fprintf(stdout, "RuBiX server starting\n"); 
@@ -983,32 +969,6 @@ bool AppInit2(boost::thread_group& threadGroup)
 
     if (!strErrors.str().empty())
         return InitError(strErrors.str());
-
-        // Check toggle switch for experimental feature testing fork
-    uiInterface.InitMessage(_("Checking experimental feature toggle..."));
-    strLiveForkToggle = GetArg("-liveforktoggle", "");
-    LogPrintf("Checking for experimental testing feature fork toggle...\n");
-    if(!strLiveForkToggle.empty()){
-        LogPrintf("Verifying height selection for experimental testing feature fork toggle...\n");
-        std::istringstream(strLiveForkToggle) >> nLiveForkToggle;
-        if(nLiveForkToggle == 0)
-        {
-            LogPrintf("Continuing with fork toggle manually disabled by user...\n");
-        }
-        else if(nLiveForkToggle < nBestHeight)
-        {
-            return InitError(_("Invalid experimental testing feature fork toggle, please select a higher block than currently sync'd height\n"));
-        }
-        else
-        {
-            LogPrintf("Continuing with fork toggle set for block: %s | Happy testing!\n", strLiveForkToggle.c_str());
-        }
-
-    }
-    else {
-        nLiveForkToggle = 0;
-        LogPrintf("No experimental testing feature fork toggle detected... skipping...\n");
-    }
 
     uiInterface.InitMessage(_("Loading masternode cache..."));
 

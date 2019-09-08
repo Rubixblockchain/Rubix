@@ -8,7 +8,6 @@
 #include "txdb.h"
 #include "miner.h"
 #include "kernel.h"
-#include "masternode.h"
 #include "masternodeman.h"
 #include "masternode-payments.h"
 
@@ -370,10 +369,9 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
         // > RBX <
         if (!fProofOfStake){
             pblock->vtx[0].vout[0].nValue = GetProofOfWorkReward(pindexPrev->nHeight + 1, nFees);
-
             // Check for payment update fork
             if(pindexBest->GetBlockTime() > 0){
-                if(pindexBest->GetBlockTime() > nPaymentUpdate_1){ // Sunday, June 16, 2019 9:56:07 AM
+                if(pindexBest->GetBlockTime() > nPaymentUpdate_1){ // OFF (NOT TOGGLED)
                     // masternode/devops payment
                     int64_t blockReward = GetProofOfWorkReward(pindexPrev->nHeight + 1, nFees);
                     bool hasPayment = true;
@@ -396,7 +394,7 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
                     //
                     CBitcoinAddress devopaddress;
                     if (Params().NetworkID() == CChainParams::MAIN)
-                        devopaddress = CBitcoinAddress("dSCXLHTZJJqTej8ZRszZxbLrS6dDGVJhw7"); // TODO: nothing, already set to a valid DigitalNote address
+                        devopaddress = CBitcoinAddress("RmG7TTPEJDhNAvK4jy2oShizc8WmeF7pKH");
                     else if (Params().NetworkID() == CChainParams::TESTNET)
                         devopaddress = CBitcoinAddress("");
                     else if (Params().NetworkID() == CChainParams::REGTEST)
@@ -458,14 +456,13 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
             } //
         }
 
-        if (pFees) {
+        if (pFees)
             *pFees = nFees;
 
         // Fill in header
         pblock->hashPrevBlock  = pindexPrev->GetBlockHash();
         pblock->nTime          = max(pindexPrev->GetPastTimeLimit()+1, pblock->GetMaxTransactionTime());
-        }
-        if (!fProofOfStake) {
+        if (!fProofOfStake)
             pblock->UpdateTime(pindexPrev);
         pblock->nNonce         = 0;
     }

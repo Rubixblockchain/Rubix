@@ -42,13 +42,7 @@ namespace boost {
 /** Time between pings automatically sent out for latency probing and keepalive (in seconds). */
 static const int PING_INTERVAL = 1 * 60;
 /** Time after which to disconnect, after waiting for a ping response (or inactivity). */
-static const int TIMEOUT_INTERVAL = 30 * 60;
-/** Time between cycles to check for idle nodes, force disconnect (seconds) **/ 
-static const int IDLE_TIMEOUT = 15 * 60;
-/** Time between cycles to check for idle nodes, force disconnect (seconds) **/
-static const int DATA_TIMEOUT = 30 * 60; 
-/** Maximum length of strSubVer in `version` message */
-static const unsigned int MAX_SUBVERSION_LENGTH = 256;
+static const int TIMEOUT_INTERVAL = 20 * 60;
 /** The maximum number of entries in an 'inv' protocol message */
 static const unsigned int MAX_INV_SZ = 50000;
 /** The maximum number of entries in mapAskFor */
