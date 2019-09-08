@@ -461,7 +461,7 @@ CMasternode* CMasternodeMan::GetCurrentMasterNode(int mod, int64_t nBlockHeight,
 
 bool CMasternodeMan::IsPayeeAValidMasternode(CScript payee)
 {
-    if(!darkSendPool.IsBlockchainSynced()) return true;
+    if(!mnEnginePool.IsBlockchainSynced()) return true;
 
     int mnCount = 0;
     bool fValid = false;

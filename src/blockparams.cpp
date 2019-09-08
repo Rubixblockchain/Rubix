@@ -14,7 +14,7 @@
 #include "txdb.h"
 #include "velocity.h"
 #include "main.h"
-#include "darksend.h"
+#include "mnengine.h"
 #include "masternodeman.h"
 
 #include <boost/random/mersenne_twister.hpp>
@@ -68,7 +68,6 @@ int64_t scantime_1 = 0;
 int64_t scantime_2 = 0;
 int64_t prevPoW = 0; // hybrid value
 int64_t prevPoS = 0; // hybrid value
-uint64_t blkTime = 0;
 uint64_t cntTime = 0;
 uint64_t prvTime = 0;
 uint64_t difTime = 0;
@@ -102,7 +101,7 @@ void VRXswngdebug()
     LogPrintf("Current block-time: %u: \n",difType.c_str(),cntTime);
     LogPrintf("Time since last %s block: %u: \n",difType.c_str(),difTime);
     // Handle updated versions as well as legacy
-    if(GetTime() > nLiveForkToggle) {
+    if(GetTime() > nPaymentUpdate_2) {
         debugHourRounds = hourRounds;
         debugTerminalAverage = TerminalAverage;
         debugDifCurve = difCurve;
@@ -290,14 +289,13 @@ void VRX_ThreadCurve(const CBlockIndex* pindexLast, bool fProofOfStake)
     if(pindexBest->GetBlockTime() > 1520198278) // ON Sunday, March 4, 2018 9:17:58 PM
     {
         // Define time values
-        blkTime = pindexLast->GetBlockTime();
         cntTime = BlockVelocityType->GetBlockTime();
         prvTime = BlockVelocityType->pprev->GetBlockTime();
 
         difTime = cntTime - prvTime;
         hourRounds = 1;
         difCurve = 2;
-        fCRVreset = false;
+        CRVreset = false;
 
         // Debug print toggle
         if(fProofOfStake) {
@@ -308,10 +306,9 @@ void VRX_ThreadCurve(const CBlockIndex* pindexLast, bool fProofOfStake)
         if(fDebug) VRXswngdebug();
 
         // Version 1.2 Extended Curve Run Upgrade
-        if(pindexLast->nHeight+1 > nLiveForkToggle && nLiveForkToggle != 0) {// TODO: Verifoy Upgrade
-            // Set unbiased comparison
-            difTime = blkTime - cntTime;
-            // Run Curve
+        if(pindexLast->nHeight+1 >= nLiveForkToggle && nLiveForkToggle != 0) {
+            difTime = GetTime() - cntTime;
+            if (fProofOfStake) { fCRVreset = true; }// TODO remove PoS diff reset
             while(difTime > (hourRounds * 60 * 60)) {
                 // Break loop after 5 hours, otherwise time threshold will auto-break loop
                 if (hourRounds > 5){
@@ -349,14 +346,9 @@ void VRX_Dry_Run(const CBlockIndex* pindexLast)
     // Reset difficulty for payments update
     if(pindexLast->GetBlockTime() > 0)
     {
-        // Do Nothing until go-live
-    }
-
-    // Test Fork
-    if (nLiveForkToggle != 0) {
-        if(pindexLast->nHeight+1 > nLiveForkToggle) // TODO: Verify Upgrade
+        if(pindexLast->GetBlockTime() > nPaymentUpdate_1) // Tuesday, June 18, 2019 8:57:46 PM
         {
-            if(pindexLast->nHeight+1 < nLiveForkToggle+10) {
+            if(pindexLast->GetBlockTime() < nPaymentUpdate_1+480) {
                 fDryRun = true;
                 return; // diff reset
             }
@@ -466,7 +458,7 @@ int64_t GetProofOfWorkReward(int nHeight, int64_t nFees)
         chance *= 10;
 
     if(randreward() <= chance && nHeight > nReservePhaseEnd) // 17% Chance of superblock
-        nSubsidy *= nSuperModifier;
+        nSubsidy *= nSuperModifier; // x2
 
     // hardCap v2.1
     else if(pindexBest->nMoneySupply > MAX_SINGLE_TX)

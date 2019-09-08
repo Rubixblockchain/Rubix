@@ -75,7 +75,7 @@ public:
     std::string DarksendPoolDummyAddress() const { return strDarksendPoolDummyAddress; }
     std::string DevOpsAddress() const { return strDevOpsAddress; }
 protected:
-    CChainParams() {/* Do Nothing */;}
+    CChainParams() {};
 
     uint256 hashGenesisBlock;
     MessageStartChars pchMessageStart;
