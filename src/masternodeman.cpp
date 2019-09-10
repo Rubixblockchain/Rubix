@@ -478,7 +478,6 @@ bool CMasternodeMan::IsPayeeAValidMasternode(CScript payee)
     }
     return fValid;
 }
-
 int CMasternodeMan::GetMasternodeRank(const CTxIn& vin, int64_t nBlockHeight, int minProtocol, bool fOnlyActive)
 {
     std::vector<pair<unsigned int, CTxIn> > vecMasternodeScores;

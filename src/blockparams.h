@@ -9,6 +9,7 @@
 #include "net.h"
 #include "core.h"
 #include "bignum.h"
+#include "base58.h"
 
 #define START_MASTERNODE_PAYMENTS_TESTNET      9993058800  // OFF (NOT TOGGLED) // to be added 1548720000
 #define START_MASTERNODE_PAYMENTS              9993058800  // OFF (NOT TOGGLED)

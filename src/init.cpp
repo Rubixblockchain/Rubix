@@ -556,6 +556,9 @@ bool AppInit2(boost::thread_group& threadGroup)
     //ignore masternodes below protocol version
     nMasternodeMinProtocol = GetArg("-masternodeminprotocol", MIN_POOL_PEER_PROTO_VERSION);
 
+    //log startup time for advanced Masternode checks delay (required for proper sync)
+    nMasterNodeChecksDelayBaseTime = GetTime();
+
     if (fDaemon)
         fprintf(stdout, "RuBiX server starting\n"); 
 
@@ -969,7 +972,33 @@ bool AppInit2(boost::thread_group& threadGroup)
 
     if (!strErrors.str().empty())
         return InitError(strErrors.str());
+    /* TODO: Define strLiveForkToggle later
+    // Check toggle switch for experimental feature testing fork
+uiInterface.InitMessage(_("Checking experimental feature toggle..."));
+strLiveForkToggle = GetArg("-liveforktoggle", "");
+LogPrintf("Checking for experimental testing feature fork toggle...\n");
+if(!strLiveForkToggle.empty()){
+    LogPrintf("Verifying height selection for experimental testing feature fork toggle...\n");
+    std::istringstream(strLiveForkToggle) >> nLiveForkToggle;
+    if(nLiveForkToggle == 0)
+    {
+        LogPrintf("Continuing with fork toggle manually disabled by user...\n");
+    }
+    else if(nLiveForkToggle < nBestHeight)
+    {
+        return InitError(_("Invalid experimental testing feature fork toggle, please select a higher block than currently sync'd height\n"));
+    }
+    else
+    {
+        LogPrintf("Continuing with fork toggle set for block: %s | Happy testing!\n", strLiveForkToggle.c_str());
+    }
 
+}
+else {
+    nLiveForkToggle = 0;
+    LogPrintf("No experimental testing feature fork toggle detected... skipping...\n");
+}
+    */
     uiInterface.InitMessage(_("Loading masternode cache..."));
 
     CMasternodeDB mndb;

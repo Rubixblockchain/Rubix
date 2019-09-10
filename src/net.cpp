@@ -927,22 +927,33 @@ void ThreadSocketHandler()
             if (pnode->vSendMsg.empty()) {
                 pnode->nLastSendEmpty = GetTime();
             }
+                // First see if we've received/sent anything
             if (GetTime() - pnode->nTimeConnected > 60)
             {
                 if (pnode->nLastRecv == 0 || pnode->nLastSend == 0)
                 {
+                    // Disconnect if we have a completely stale connection
                     LogPrint("net", "socket no message in first 60 seconds, %d %d\n", pnode->nLastRecv != 0, pnode->nLastSend != 0);
                     pnode->fDisconnect = true;
                 }
+                // Send timeout
                 else if (GetTime() - pnode->nLastSend > 90*60 && GetTime() - pnode->nLastSendEmpty > 90*60)
                 {
                     LogPrintf("socket not sending\n");
                     pnode->fDisconnect = true;
                 }
+                // Receive timeout
                 else if (GetTime() - pnode->nLastRecv > 90*60)
                 {
                     LogPrintf("socket inactivity timeout\n");
                     pnode->fDisconnect = true;
+                }
+                // Ping timeout
+                else if (pnode->nPingNonceSent && pnode->nPingUsecStart + TIMEOUT_INTERVAL * 1000000 < GetTimeMicros())
+                {
+                    LogPrintf("ping timeout: %fs\n", 0.000001 * (GetTimeMicros() - pnode->nPingUsecStart));
+                    pnode->fDisconnect = true;
+                    pnode->CloseSocketDisconnect();
                 }
             }
         }

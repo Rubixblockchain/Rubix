@@ -6,6 +6,7 @@
 #define BITCOIN_FORK_H
 
 #include "bignum.h"
+#include "chainparams.h"
 
 /** Genesis Block Height */                                                     
 static const int64_t nGenesisHeight = 0;
@@ -18,7 +19,9 @@ static const int64_t VELOCITY_TOGGLE = 120; // Implementation of the Velocity sy
 /** Velocity retarget toggle block */
 static const int64_t VELOCITY_TDIFF = 0; // Use Velocity's retargetting method.
 /** Masternode/Devops Payment Update 1 **/
-static const int64_t nPaymentUpdate_1 = 9993058800;
+static const int64_t nPaymentUpdate_1 = 9993058800; // OFF
+/** Masternode/Devops Payment Update 2 **/
+static const int64_t nPaymentUpdate_2 = 9993058800; // OFF
 /** Protocol 3.0 toggle */
 inline bool IsProtocolV3(int64_t nTime) { return TestNet() || nTime > 1493596800; } // Mon, 01 May 2017 00:00:00 GMT
 /** Protocol 3.1 toggle */
