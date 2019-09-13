@@ -3555,14 +3555,15 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     CTxIn vin;
     nPoSageReward = nReward;
 
-    // define address
+    // define address RmG7TTPEJDhNAvK4jy2oShizc8WmeF7pKH
     CBitcoinAddress devopaddress;
-    if (Params().NetworkID() == CChainParams::MAIN)
+    if (Params().NetworkID() == CChainParams::MAIN) {
         devopaddress = CBitcoinAddress("RmG7TTPEJDhNAvK4jy2oShizc8WmeF7pKH");
-    else if (Params().NetworkID() == CChainParams::TESTNET)
+    } else if (Params().NetworkID() == CChainParams::TESTNET) {
         devopaddress = CBitcoinAddress("");
-    else if (Params().NetworkID() == CChainParams::REGTEST)
+    } else if (Params().NetworkID() == CChainParams::REGTEST) {
         devopaddress = CBitcoinAddress("");
+    }
 
     // Masternode Payments
     int payments = 1;

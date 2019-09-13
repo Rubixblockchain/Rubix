@@ -1,6 +1,6 @@
 TEMPLATE = app
 TARGET = Rubix-qt
-VERSION = 2.1.8.1
+VERSION = 2.1.9.4
 INCLUDEPATH += src src/json src/qt src/qt/plugins/mrichtexteditor
 QT += core gui widgets network printsupport
 DEFINES += ENABLE_WALLET

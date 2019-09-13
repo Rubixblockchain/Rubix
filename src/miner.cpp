@@ -16,7 +16,7 @@ using namespace std;
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// BitcoinMiner
+// Bitcoin-Miner
 //
 
 extern unsigned int nMinerSleep;
@@ -372,7 +372,7 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
             pblock->vtx[0].vout[0].nValue = GetProofOfWorkReward(pindexPrev->nHeight + 1, nFees);
             // Check for payment update fork
             if(pindexBest->GetBlockTime() > 0){
-                if(pindexBest->GetBlockTime() > nPaymentUpdate_1){ // OFF (NOT TOGGLED)
+                if(pindexBest->GetBlockTime() > nLiveForkToggle){ // TODO: Verify upgrade
                     // masternode/devops payment
                     int64_t blockReward = GetProofOfWorkReward(pindexPrev->nHeight + 1, nFees);
                     bool hasPayment = true;
@@ -394,12 +394,13 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
                     //       Not an issue otherwise, merely a pet peev. Done in a rush...
                     //
                     CBitcoinAddress devopaddress;
-                    if (Params().NetworkID() == CChainParams::MAIN)
+                    if (Params().NetworkID() == CChainParams::MAIN) {
                         devopaddress = CBitcoinAddress("RmG7TTPEJDhNAvK4jy2oShizc8WmeF7pKH");
-                    else if (Params().NetworkID() == CChainParams::TESTNET)
+                    } else if (Params().NetworkID() == CChainParams::TESTNET) {
                         devopaddress = CBitcoinAddress("");
-                    else if (Params().NetworkID() == CChainParams::REGTEST)
+                    } else if (Params().NetworkID() == CChainParams::REGTEST) {
                         devopaddress = CBitcoinAddress("");
+                    }
 
                     // verify address
                     if(devopaddress.IsValid())

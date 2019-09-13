@@ -1,5 +1,5 @@
 // Copyright (c) 2016-2019 The CryptoCoderz Team / Espers
-// Copyright (c) 2018 The Rubix project
+// Copyright (c) 2018-2019 The Rubix project
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #ifndef BITCOIN_FORK_H
@@ -18,10 +18,6 @@ static const int64_t nReservePhaseEnd = 3; //
 static const int64_t VELOCITY_TOGGLE = 120; // Implementation of the Velocity system into the chain.
 /** Velocity retarget toggle block */
 static const int64_t VELOCITY_TDIFF = 0; // Use Velocity's retargetting method.
-/** Masternode/Devops Payment Update 1 **/
-static const int64_t nPaymentUpdate_1 = 9993058800; // OFF
-/** Masternode/Devops Payment Update 2 **/
-static const int64_t nPaymentUpdate_2 = 9993058800; // OFF
 /** Protocol 3.0 toggle */
 inline bool IsProtocolV3(int64_t nTime) { return TestNet() || nTime > 1493596800; } // Mon, 01 May 2017 00:00:00 GMT
 /** Protocol 3.1 toggle */

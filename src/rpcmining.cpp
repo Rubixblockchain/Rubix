@@ -687,7 +687,6 @@ Value getblocktemplate(const Array& params, bool fHelp)
     }
 
     Array aVotes;
-
     Object result;
 
     // Define coinbase payment
@@ -697,12 +696,10 @@ Value getblocktemplate(const Array& params, bool fHelp)
     result.push_back(Pair("version", pblock->nVersion));
     result.push_back(Pair("previousblockhash", pblock->hashPrevBlock.GetHex()));
     result.push_back(Pair("transactions", transactions));
-
     // Check for payment upgrade fork
     if (pindexBest->GetBlockTime() > 0)
     {
-        if (pindexBest->GetBlockTime() > nPaymentUpdate_1) // OFF (NOT TOGGLED)
-        {
+        if (pindexBest->GetBlockTime() > nLiveForkToggle){// TODO: Verify Upgrade
             // Set Masternode / DevOps payments
             int64_t masternodePayment = GetMasternodePayment(pindexPrev->nHeight+1, networkPayment);
             int64_t devopsPayment = GetDevOpsPayment(pindexPrev->nHeight+1, networkPayment);
@@ -713,7 +710,6 @@ Value getblocktemplate(const Array& params, bool fHelp)
             result.push_back(Pair("payee_amount", (int64_t)devopsSplit));
             result.push_back(Pair("devops_payments", true));
             result.push_back(Pair("enforce_devops_payments", true));
-
             // Include Masternode payments
             CAmount masternodeSplit = masternodePayment;
             CMasternode* winningNode = mnodeman.GetCurrentMasterNode(1);

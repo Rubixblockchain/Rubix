@@ -92,7 +92,7 @@ bool fSucessfullyLoaded = false;
 bool fEnableDarksend = false;
 /** All denominations used by darksend */
 std::vector<int64_t> darkSendDenominations;
-//Standard features
+// Standard Features
 map<string, string> mapArgs;
 map<string, vector<string> > mapMultiArgs;
 bool fDebug = false;

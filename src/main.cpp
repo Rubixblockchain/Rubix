@@ -2648,9 +2648,9 @@ if ( Params().NetworkID() == CChainParams::TESTNET ){
     }
 }
 // Fork toggle for payment upgrade
-if(pindexBest->GetBlockTime() > 0)
+if(nLiveForkToggle != 0)
 {
-    if(pindexBest->GetBlockTime() > nPaymentUpdate_1) // Sunday, June 16, 2019 9:56:07 AM
+    if(pindexBest->nHeight > nLiveForkToggle) // TODO: Verify upgrade
     {
         bDevOpsPayment = true;
     }
@@ -2759,7 +2759,7 @@ if(bDevOpsPayment)
                if (nIndexedDevopsPayment == nDevopsPayment) {
                    LogPrintf("CheckBlock() : PoS Recipient devops amount validity succesfully verified\n");
                } else {
-                   if (pindexBest->GetBlockTime() < nPaymentUpdate_2) {
+                       if (pindexBest->nHeight < nLiveForkToggle) {
                        LogPrintf("CheckBlock() : PoS Recipient devops amount validity could not be verified\n");
                        fBlockHasPayments = false;
                    } else {
@@ -2768,9 +2768,9 @@ if(bDevOpsPayment)
                        } else {
                            LogPrintf("CheckBlock() : PoS Reciepient devops amount validity could not be verified");
                            fBlockHasPayments = false;
-                        }
-                    }
-                }
+                       }
+                   }
+               }
             }
         }
         // PoW Checks
@@ -2811,7 +2811,7 @@ if(bDevOpsPayment)
                if (nAmount == nDevopsPayment) {// TODO: Update this section as was done with PoS
                   LogPrintf("CheckBlock() : PoW Recipient devops amount validity succesfully verified\n");
                } else {
-                   if (pindexBest->GetBlockTime() < nPaymentUpdate_2) {
+                       if (pindexBest->nHeight < nLiveForkToggle) {
                        LogPrintf("CheckBlock() : PoW Recipient devops amount validity could not be verified\n");
                        fBlockHasPayments = false;
                    } else {
@@ -2858,9 +2858,9 @@ if(bDevOpsPayment)
         }
     }
     // Fork toggle for payment upgrade
-    if(pindexBest->GetBlockTime() > 0)
+    if(nLiveForkToggle != 0)
     {
-        if(pindexBest->GetBlockTime() > nPaymentUpdate_1) // OFF (NOT TOGGLED)
+        if(pindexBest->nHeight > nLiveForkToggle) // TODO: Verify upgrade
         {
             bDevOpsPayment = true;
         }
@@ -2884,6 +2884,7 @@ if(bDevOpsPayment)
         const CBlockIndex* pindexPrev = pindexBest->pprev;
         bool isProofOfStake = !IsProofOfWork();
         bool fBlockHasPayments = true;
+        std::string strVfyDevopsAddress;
         if (isProofOfStake) {
             nProofOfIndexMasternode = 2;
             nProofOfIndexDevops = 3;
@@ -2909,6 +2910,8 @@ if(bDevOpsPayment)
         nMasternodePayment = GetMasternodePayment(pindexBest->nHeight, nStandardPayment) / COIN;
         nDevopsPayment = GetDevOpsPayment(pindexBest->nHeight, nStandardPayment) / COIN;
         LogPrintf("Hardset MasternodePayment: %lu | Hardset DevOpsPayment: %lu \n", nMasternodePayment, nDevopsPayment);
+        // Devops Address Set and Updates
+        strVfyDevopsAddress = "RmG7TTPEJDhNAvK4jy2oShizc8WmeF7pKH";
         // Check PoW or PoS payments for current block
         for (unsigned int i=0; i < vtx[isProofOfStake].vout.size(); i++) {
             // Define values
@@ -2926,7 +2929,7 @@ if(bDevOpsPayment)
                 if (i == nProofOfIndexMasternode) {
                     if (mnodeman.IsPayeeAValidMasternode(rawPayee)) {
                         LogPrintf("CheckBlock() : PoS Recipient masternode address validity succesfully verified\n");
-                    } else if (addressOut.ToString() == Params().DevOpsAddress()) {
+                   } else if (addressOut.ToString() == strVfyDevopsAddress) {
                         LogPrintf("CheckBlock() : PoS Recipient masternode address validity succesfully verified\n");
                     } else {
                         LogPrintf("CheckBlock() : PoS Recipient masternode address validity could not be verified\n");
@@ -2941,7 +2944,7 @@ if(bDevOpsPayment)
                 }
                 // Check for PoS devops payment
                 if (i == nProofOfIndexDevops) {
-                    if (addressOut.ToString() == Params().DevOpsAddress()) {
+                   if (addressOut.ToString() == strVfyDevopsAddress) {
                         LogPrintf("CheckBlock() : PoS Recipient devops address validity succesfully verified\n");
                     } else {
                         LogPrintf("CheckBlock() : PoS Recipient devops address validity could not be verified\n");
@@ -2961,7 +2964,7 @@ if(bDevOpsPayment)
                 if (i == nProofOfIndexMasternode) {
                     if (mnodeman.IsPayeeAValidMasternode(rawPayee)) {
                         LogPrintf("CheckBlock() : PoW Recipient masternode address validity succesfully verified\n");
-                    } else if (addressOut.ToString() == Params().DevOpsAddress()) {
+                   } else if (addressOut.ToString() == strVfyDevopsAddress) {
                         LogPrintf("CheckBlock() : PoW Recipient masternode address validity succesfully verified\n");
                        } else {
                         LogPrintf("CheckBlock() : PoW Recipient masternode address validity could not be verified\n");
@@ -2976,7 +2979,7 @@ if(bDevOpsPayment)
                 }
                 // Check for PoW devops payment
                 if (i == nProofOfIndexDevops) {
-                    if (addressOut.ToString() == Params().DevOpsAddress()) {
+                   if (addressOut.ToString() == strVfyDevopsAddress) {
                         LogPrintf("CheckBlock() : PoW Recipient devops address validity succesfully verified\n");
                     } else {
                         LogPrintf("CheckBlock() : PoW Recipient devops address validity could not be verified\n");
@@ -3990,15 +3993,12 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
         vRecv >> pfrom->nVersion >> pfrom->nServices >> nTime >> addrMe;
         if(pfrom->nVersion <= (PROTOCOL_VERSION - 1))
         {
-            if(pindexBest->GetBlockTime() > HRD_LEGACY_CUTOFF)
-            {
+            if(pindexBest->GetBlockTime() > HRD_LEGACY_CUTOFF) {
                 // disconnect from peers older than legacy cutoff allows : Disconnect message 02
                 LogPrintf("partner %s using obsolete version %i; disconnecting DCM:02\n", pfrom->addr.ToString(), pfrom->nVersion);
                 pfrom->fDisconnect = true;
                 return false;
-            }
-            else if(pfrom->nVersion < MIN_PEER_PROTO_VERSION)
-            {
+            } else if(pfrom->nVersion < MIN_PEER_PROTO_VERSION) {
                 // disconnect from peers older than this proto version : Disconnect message 01
                 LogPrintf("partner %s using obsolete version %i; disconnecting DCM:01\n", pfrom->addr.ToString(), pfrom->nVersion);
                 pfrom->fDisconnect = true;

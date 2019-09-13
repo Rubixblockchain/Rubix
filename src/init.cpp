@@ -972,7 +972,6 @@ bool AppInit2(boost::thread_group& threadGroup)
 
     if (!strErrors.str().empty())
         return InitError(strErrors.str());
-    /* TODO: Define strLiveForkToggle later
     // Check toggle switch for experimental feature testing fork
 uiInterface.InitMessage(_("Checking experimental feature toggle..."));
 strLiveForkToggle = GetArg("-liveforktoggle", "");
@@ -993,12 +992,11 @@ if(!strLiveForkToggle.empty()){
         LogPrintf("Continuing with fork toggle set for block: %s | Happy testing!\n", strLiveForkToggle.c_str());
     }
 
-}
-else {
+    } else {
     nLiveForkToggle = 0;
     LogPrintf("No experimental testing feature fork toggle detected... skipping...\n");
 }
-    */
+
     uiInterface.InitMessage(_("Loading masternode cache..."));
 
     CMasternodeDB mndb;
