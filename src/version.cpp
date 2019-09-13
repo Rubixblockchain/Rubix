@@ -37,7 +37,7 @@ const std::string CLIENT_NAME("Rubix-core");
 #define GIT_ARCHIVE 1
 #ifdef GIT_ARCHIVE
 #    define GIT_COMMIT_ID "Rubix-v2-prototype-10"
-#    define GIT_COMMIT_DATE "May 6, 2019" //$Format:%cD
+#    define GIT_COMMIT_DATE "Sep 11th, 2019" //$Format:%cD
 #endif
 
 #define BUILD_DESC_FROM_COMMIT(maj,min,rev,build,commit) \
