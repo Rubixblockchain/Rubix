@@ -34,7 +34,7 @@ RuBiX uses
 		OR Boost1.58,  
 		Openssl1.02o,
 		Berkeley DB 6.2.32,
-		QT5.11 to compile
+		QT5.13 to compile
 
 
 General Specs
@@ -72,7 +72,7 @@ sudo cp -r /home/ftpuser/ftp/files/RBX-clean/. ~/Rubix
 
 ### GitHub pull RECOMMENDED
 ```
-cd ~; git clone https://github.com/CryptoCoderz/Rubix
+cd ~; git clone https://github.com/SaltineChips/Rubix
 ```
 
 ### Build Rubix daemon
@@ -96,7 +96,7 @@ rpcallowip=127.0.0.1
 addnode=46.101.73.64
 addnode=188.166.109.87
 addnode=159.203.240.221
-addnode=104.248.80.140
+addnode=165.227.34.98
 CONFIG
 chmod 700 ~/.RBX/RuBiX.conf; chmod 700 ~/.RBX; ls -la ~/.RBX
 ```
@@ -134,7 +134,9 @@ The developer [mailing list](https://lists.linuxfoundation.org/mailman/listinfo/
 should be used to discuss complicated or controversial changes before working
 on a patch set.
 
-Developer Slack can be found at http://rubixcointeam.slack.com.
+Developer Slack can be found at http://rubixcointeam.slack.com. (this is abandoned)
+
+Developer Discord can be found at https://discord.gg/rg9PfAR. (this is active)
 
 Testing
 -------
