@@ -83,7 +83,6 @@ int ECDSA_SIG_recover_key_GFp(EC_KEY *eckey, ECDSA_SIG *ecsig, const unsigned ch
     ecsig_s = ecsig->s;
 #endif
 
-
     const EC_GROUP *group = EC_KEY_get0_group(eckey);
     if ((ctx = BN_CTX_new()) == NULL) { ret = -1; goto err; }
     BN_CTX_start(ctx);
@@ -216,7 +215,7 @@ bool CECKey::Sign(const uint256 &hash, std::vector<unsigned char>& vchSig) {
     sig_r = sig->r;
     sig_s = sig->s;
 #endif
-
+        
     BN_CTX *ctx = BN_CTX_new();
     BN_CTX_start(ctx);
     const EC_GROUP *group = EC_KEY_get0_group(pkey);
@@ -237,7 +236,6 @@ bool CECKey::Sign(const uint256 &hash, std::vector<unsigned char>& vchSig) {
         sig->r = sig_r_new;
         sig->s = sig_s_new;
 #endif
-
     }
     BN_CTX_end(ctx);
     BN_CTX_free(ctx);
@@ -271,7 +269,7 @@ bool CECKey::SignCompact(const uint256 &hash, unsigned char *p64, int &rec) {
     sig_r = sig->r;
     sig_s = sig->s;
 #endif
-
+        
     memset(p64, 0, 64);
     int nBitsR = BN_num_bits(sig_r);
     int nBitsS = BN_num_bits(sig_s);
@@ -316,7 +314,6 @@ bool CECKey::Recover(const uint256 &hash, const unsigned char *p64, int rec)
     sig->r = sig_r;
     sig->s = sig_s;
 #endif
-
     bool ret = ECDSA_SIG_recover_key_GFp(pkey, sig, (unsigned char*)&hash, sizeof(hash), rec, 0) == 1;
     ECDSA_SIG_free(sig);
     return ret;

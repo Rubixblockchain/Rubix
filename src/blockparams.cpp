@@ -1,6 +1,7 @@
-// Copyright (c) 2016-2019 The CryptoCoderz Team / Espers
-// Copyright (c) 2019 The CryptoCoderz Team / INSaNe project
-// Copyright (c) 2018-2019 The Rubix project
+// Copyright (c) 2016-2020 The CryptoCoderz Team / Espers
+// Copyright (c) 2018-2020 The CryptoCoderz Team / INSaNe project
+// Copyright (c) 2018-2020 The Rubix project
+// Copyright (c) 2018-2020 The RuBiX project
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -14,6 +15,8 @@
 #include "txdb.h"
 #include "velocity.h"
 #include "main.h"
+#include "mnengine.h"
+#include "masternodeman.h"
 
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
@@ -56,8 +59,8 @@ int64_t VLRtemp = 0;
 int64_t DSrateNRM = BLOCK_SPACING;
 int64_t DSrateMAX = BLOCK_SPACING_MAX;
 int64_t FRrateDWN = DSrateNRM - 60;
-int64_t FRrateFLR = DSrateNRM - 80;
-int64_t FRrateCLNG = DSrateMAX * 3;
+int64_t FRrateFLR = DSrateNRM - 90;
+int64_t FRrateCLNG = DSrateMAX + 180;
 int64_t difficultyfactor = 0;
 int64_t AverageDivisor = 5;
 int64_t scanheight = 6;
@@ -84,6 +87,7 @@ CBigNum bnNew;
 std::string difType ("");
 unsigned int retarget = DIFF_VRX; // Default with VRX
 
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // Debug section
@@ -97,10 +101,10 @@ void VRXswngdebug()
 {
     // Print for debugging
     LogPrintf("Previously discovered %s block: %u: \n",difType.c_str(),prvTime);
-    LogPrintf("Current block-time: %u: \n",difType.c_str(),cntTime);
+    LogPrintf("Current block-time: %u: \n",cntTime);
     LogPrintf("Time since last %s block: %u: \n",difType.c_str(),difTime);
     // Handle updated versions as well as legacy
-    if(GetTime() > nLiveForkToggle) {
+    if(GetTime() > nPaymentUpdate_2) {
         debugHourRounds = hourRounds;
         debugTerminalAverage = TerminalAverage;
         debugDifCurve = difCurve;
@@ -108,12 +112,11 @@ void VRXswngdebug()
             debugTerminalAverage /= debugDifCurve;
             LogPrintf("diffTime%s is greater than %u Hours: %u \n",difType.c_str(),debugHourRounds,cntTime);
             LogPrintf("Difficulty will be multiplied by: %d \n",debugTerminalAverage);
-
             // Break loop after 5 hours, otherwise time threshold will auto-break loop
             if (debugHourRounds > 5){
                 break;
             }
-            debugDifCurve *= 10;
+            debugDifCurve ++;
             debugHourRounds ++;
         }
     } else {
@@ -122,6 +125,7 @@ void VRXswngdebug()
         if(difTime > (hourRounds+2) * 60 * 60) {LogPrintf("diffTime%s is greater than 3 Hours: %u \n",difType.c_str(),cntTime);}
         if(difTime > (hourRounds+3) * 60 * 60) {LogPrintf("diffTime%s is greater than 4 Hours: %u \n",difType.c_str(),cntTime);}
     }
+
     return;
 }
 
@@ -149,7 +153,7 @@ void VRXdebug()
 void GNTdebug()
 {
     // Print for debugging
-    // Retarget using DGW-v3
+    // Retarget ignoring invalid selection
     if (retarget != DIFF_VRX)
     {
         // debug info for testing
@@ -277,14 +281,14 @@ void VRX_ThreadCurve(const CBlockIndex* pindexLast, bool fProofOfStake)
 
     // Version 1.0
     //
-    int64_t nNow = nBestHeight; int64_t nThen = 1493596800; // Toggle skew system fork - Mon, 01 May 2017 00:00:00 GMT
+    int64_t nNow = nBestHeight; int64_t nThen = 10; // Toggle skew system fork - Mon, 01 May 2017 00:00:00 GMT
     if(nNow > nThen){if(prevPoW < prevPoS && !fProofOfStake){if((prevPoS-prevPoW) > 3) TerminalAverage /= 3;}
     else if(prevPoW > prevPoS && fProofOfStake){if((prevPoW-prevPoS) > 3) TerminalAverage /= 3;}
     if(TerminalAverage < 0.5) TerminalAverage = 0.5;} // limit skew to halving
 
     // Version 1.1 curve-patch
     //
-    if(pindexBest->GetBlockTime() > 1520198278) // ON Sunday, March 4, 2018 9:17:58 PM
+    if(1 == 1) // ON Sunday, March 4, 2018 9:17:58 PM
     {
         // Define time values
         blkTime = pindexLast->GetBlockTime();
@@ -304,7 +308,7 @@ void VRX_ThreadCurve(const CBlockIndex* pindexLast, bool fProofOfStake)
         if(fDebug) VRXswngdebug();
 
         // Version 1.2 Extended Curve Run Upgrade
-        if(pindexLast->nHeight+1 > nLiveForkToggle && nLiveForkToggle != 0) {// TODO: Verifoy Upgrade
+        if(pindexLast->GetBlockTime() > nPaymentUpdate_2) {// ON Tuesday, Jul 02, 2019 12:00:00 PM PDT
             // Set unbiased comparison
             difTime = blkTime - cntTime;
             // Run Curve
@@ -335,41 +339,29 @@ void VRX_ThreadCurve(const CBlockIndex* pindexLast, bool fProofOfStake)
 
 void VRX_Dry_Run(const CBlockIndex* pindexLast)
 {
-
     // Check for blocks to index | Allowing for initial chain start
     if (pindexLast->nHeight < scanheight+124) {
         fDryRun = true;
         return; // can't index prevblock
     }
 
-    // Reset difficulty for payments update
-    if(pindexLast->GetBlockTime() > 0)
-    {
-        // Do Nothing until go-live
-    }
-   /* // Allow for difficulty reset during upgrade 1
-    if(pindexLast->GetBlockTime() > nPaymentUpdate_1) {// OFF (NOT TOGGLED)
-        if(pindexLast->GetBlockTime() < nPaymentUpdate_1+480) {
-            fDryRun = true;
-            return; // diff reset
+    if(pindexBest->GetBlockTime() > 1596024000) {
+        if(pindexBest->GetBlockTime() < 1596304801) {
+          // Reset diff for fork (Rewards update)
+          fDryRun = true;
+          return;
         }
-    } */
+    }
 
     // Test Fork
     if (nLiveForkToggle != 0) {
-        if(pindexLast->nHeight+1 > nLiveForkToggle) // TODO: Verify Upgrade
-        {
-            if(pindexLast->nHeight+1 < nLiveForkToggle+10) {
-                fDryRun = true;
-                return; // diff reset
-            }
-        }
-    }
+        // Do nothing
+    }// TODO setup next testing fork
 
     // Standard, non-Dry Run
     fDryRun = false;
     return;
-        }
+}
 
 unsigned int VRX_Retarget(const CBlockIndex* pindexLast, bool fProofOfStake)
 {
@@ -432,52 +424,77 @@ unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfS
 //
 // Coin base subsidy
 //
-
-int static generateMTRandom(unsigned int s, int range)
-{
-    random::mt19937 gen(s);
-    random::uniform_int_distribution<> dist(0, range);
-    return dist(gen);
-}
-
-int randreward()
-{
-    // Superblock calculations
-    uint256 prevHash = 0;
-    if(pindexBest->pprev)
-        prevHash = pindexBest->pprev->GetBlockHash();
-    std::string cseed_str = prevHash.ToString().substr(7,7);
-    const char* cseed = cseed_str.c_str();
-    long seed = hex2long(cseed);
-    int rand1 = generateMTRandom(seed, 1000000);
-    return rand1;
-}
+//
+// Reward calculations for 25-years of CCASH emissions
+// 10 Billion Total     | 8 Billion Premine
+// 100% Remaining CCASH   : 2,000,000,000
+// ----------------------------------
+// Block numbers based on 2-minute blocktime average
+// (Not including initial 250 starting blocks)
+// Blocks per day       :     720
+// Blocks per month     :  21,600
+// Blocks per year      : 262,800
+// ----------------------------------
+// 100% for Calculations: 720 blocks per day
+// Payout per block     : 300 CCASH
+// Payout per day       : 300 * ((1 * 60 * 60) / (2 * 60) * 24)                   =       216,000 CCASH
+// Payout per month     : 300 * (((1 * 60 * 60) / (2 * 60) * 24) * 30)            =     6,480,000 CCASH
+// Payout per year      : 300 * (((1 * 60 * 60) / (2 * 60) * 24) * 365)           =    78,840,000 CCASH
+// Mineout              : 300 * (25.36 * (((1 * 60 * 60) / (2 * 60) * 24) * 365)) = 2,000,000,000 CCASH
+// ----------------------------------
+// (Network Allocation) (BLOCKS | 25-Years of minting)
+// Singular Payout      : 150-->50 CCASH
+// Maternode Payout     : 100-->200 CCASH
+// DevOps Payout        : 50 CCASH
+// ----------------------------------
+// (PLEASE NOTE)
+// Masternode Payout is calculated based on the assumption of starting payout date of Masternode Payout and
+// DevOps payout matching in terms of start date. 
+// DevOps may or may not start at at the same time as the Masternode Payouts at which point the numbers
+// will be skewed off slightly in either direction.
+// This is the same for DevOps payout, it is assumed for its calculations that it starts with Masternode
+// Payouts.
+// ----------------------------------
+// (Masternode | Network) SeeSaw
+// Increment step       : 20% step
+// Interval             : 30 blocks
+// Step per Interval    : 1 (20% step per interval)
+// Steps per swing      : 5 Steps up or down 
+// Epoch (SeeSaw finish): 15 Intervals
+// Upswing Duration     : 5 Intervals
+// Downswing Duration   : 5 Intervals
+// Idle Duration        : 5 Intervals (no adjustment)
+//
 
 //
 // PoW coin base reward
 //
 int64_t GetProofOfWorkReward(int nHeight, int64_t nFees)
 {
-    int64_t nSubsidy = nBlockPoWReward;
-
-    if(nHeight > nReservePhaseStart && nHeight < nReservePhaseEnd) {
-      nSubsidy = nBlockRewardReserve;
+    int64_t nSubsidy = 83 * COIN;
+    if(pindexBest->GetBlockTime() > 1596024000) {
+            nSubsidy = nBlockStandardReward;
     }
 
-    int chance = 17000;
+    if(pindexBest->GetBlockTime() < 1596304801) {
+      nSubsidy += 160 * COIN;
+    }
 
-    if(IsProtocolV3_1(pindexBest->GetBlockTime()))
-        chance *= 10;
-
-    if(randreward() <= chance && nHeight > nReservePhaseEnd) // 17% Chance of superblock
-        nSubsidy *= nSuperModifier; // x2
-
+    if(nHeight > nReservePhaseStart) {
+        if(pindexBest->nMoneySupply < (nBlockRewardReserve * 100)) {
+            nSubsidy = nBlockRewardReserve;
+        }
+    }
+    // 30.21 = PoW Payments for regular miners
     // hardCap v2.1
     else if(pindexBest->nMoneySupply > MAX_SINGLE_TX)
     {
         LogPrint("MINEOUT", "GetProofOfWorkReward(): create=%s nFees=%d\n", FormatMoney(nFees), nFees);
         return nFees;
     }
+
+    // Halving
+    nSubsidy >>= (nHeight / 500000); // Halves every 500,000 blocks
 
     LogPrint("creation", "GetProofOfWorkReward() : create=%s nSubsidy=%d\n", FormatMoney(nSubsidy), nSubsidy);
     return nSubsidy + nFees;
@@ -488,15 +505,39 @@ int64_t GetProofOfWorkReward(int nHeight, int64_t nFees)
 //
 int64_t GetProofOfStakeReward(const CBlockIndex* pindexPrev, int64_t nCoinAge, int64_t nFees)
 {
-    int64_t nSubsidy = nCoinAge * COIN_YEAR_REWARD * 33 / (365 * 33 + 8);
+    int64_t nSubsidy = (2.49 * COIN); // PoS Staking - pindexPrev is info from the last block, and -> means to get specific info from that block. Getblocktime is the epoch time of that block.
+    if(pindexPrev->GetBlockTime() > 1593907200 && pindexPrev->GetBlockTime() < 1612310400){ //2.49
+        nSubsidy = (2.905 * COIN); // ratio * coin =  this bloody phrase.
+    }else if(pindexPrev->GetBlockTime() > 1612310400 && pindexPrev->GetBlockTime() < 1643846400){
+        nSubsidy = (3.32 * COIN);
+    }else if(pindexPrev->GetBlockTime() > 1643846400 && pindexPrev->GetBlockTime() < 1659484800){
+        nSubsidy = (4.15 * COIN);
+    }else if(pindexPrev->GetBlockTime() > 1659484800){
+        nSubsidy = (4.98 * COIN);
+    }
 
-    int chance = 17000;
+    if(pindexBest->GetBlockTime() > 1596024000) {
+      nSubsidy = (58.25 * COIN); // PoS Staking - pindexPrev is info from the last block, and -> means to get specific info from that block. Getblocktime is the epoch time of that block.
+    if(pindexPrev->GetBlockTime() > 1596585600 && pindexPrev->GetBlockTime() < 1609804800){
+      nSubsidy = (58.875 * COIN); // (ratio * nBlockStandardReward) + 42 + (.1 * nBlockStandardReward)
+    }else if(pindexPrev->GetBlockTime() > 1609804800 && pindexPrev->GetBlockTime() < 1625443200){
+      nSubsidy = (59.5 * COIN);
+    }else if(pindexPrev->GetBlockTime() > 1625443200 && pindexPrev->GetBlockTime() < 1641340800){
+      nSubsidy = (60.75 * COIN);
+    }else if(pindexPrev->GetBlockTime() > 1641340800){
+      nSubsidy = (62 * COIN);
+    }
+    }
 
-    if(IsProtocolV3_1(pindexBest->GetBlockTime()))
-        chance *= 10;
+    if(pindexBest->GetBlockTime() < 1596304801) {
+      nSubsidy += 20.8 * COIN;
+    }
 
-    if(randreward() <= chance) // 17% Chance of superblock
-        nSubsidy = nCoinAge * COIN_SPRB_REWARD * 33 / (365 * 33 + 8);
+    if(pindexPrev->nHeight+1 > nReservePhaseStart) { // If, all 100 blocks of the premine isn't done, then next blocks have premine value
+        if(pindexBest->nMoneySupply < (nBlockRewardReserve * 100)) {
+            nSubsidy = nBlockRewardReserve;
+        }
+    }
 
     // hardCap v2.1
     else if(pindexBest->nMoneySupply > MAX_SINGLE_TX)
@@ -514,12 +555,13 @@ int64_t GetProofOfStakeReward(const CBlockIndex* pindexPrev, int64_t nCoinAge, i
 //
 int64_t GetMasternodePayment(int nHeight, int64_t blockValue)
 {
-    int64_t ret = (blockValue * 45) / 100; // 45%
+    // Define values
+    int64_t ret2 = 0;
+    if(pindexBest->GetBlockTime() > 1596024000) {
+    ret2 = 42 * COIN; // 42 CCASH
+    }
 
-    if(!IsProtocolV3_1(pindexBest->GetBlockTime()))
-        ret = (blockValue * 85) / 100; // 85%
-
-    return ret;
+    return ret2;
 }
 
 //
@@ -528,7 +570,13 @@ int64_t GetMasternodePayment(int nHeight, int64_t blockValue)
 int64_t GetDevOpsPayment(int nHeight, int64_t blockValue)
 {
     int64_t ret2 = 0;
-    ret2 = (blockValue * 5) / 100; // 5%
+    if(pindexBest->GetBlockTime() > 1596024000) {
+    ret2 = 12.5 * COIN; // 12.5 CCASH per block = 10% of blocks.
+    }
+
+    if(pindexBest->GetBlockTime() < 1596304801) {
+      ret2 += 16 * COIN;
+    }
 
     return ret2;
 }

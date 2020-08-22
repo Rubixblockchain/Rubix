@@ -60,10 +60,10 @@ class CBigNum
 
 public:
     CBigNum()
-    : bn(BN_new()) {}
+       : bn(BN_new()) {}
 
     CBigNum(const CBigNum& b)
-    : CBigNum()
+       : CBigNum()
     {
         if (!BN_copy(bn, b.bn))
         {
@@ -98,7 +98,7 @@ public:
     explicit CBigNum(uint256 n)   :CBigNum() {  setuint256(n); }
 
     explicit CBigNum(const std::vector<unsigned char>& vch)
-    : CBigNum()
+        : CBigNum()
     {
         setvch(vch);
     }
@@ -529,7 +529,11 @@ public:
     */
     bool isPrime(const int checks=BN_prime_checks) const {
         CAutoBN_CTX pctx;
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
         int ret = BN_is_prime_ex(bn, checks, pctx, NULL);
+#else
+        int ret = BN_is_prime(bn, checks, NULL, pctx, NULL);
+#endif
         if(ret < 0){
             throw bignum_error("CBigNum::isPrime :BN_is_prime");
         }
@@ -643,10 +647,10 @@ public:
         return ret;
     }
 
+
     const BIGNUM* to_bignum() const {
        return bn;
     }
-
     BIGNUM* to_bignum() {
        return bn;
     }

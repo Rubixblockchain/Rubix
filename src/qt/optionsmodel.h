@@ -7,13 +7,9 @@
 
 #include <QAbstractListModel>
 
-extern bool fUseBlackTheme;
+extern bool fUseDarkTheme;
 
-QT_BEGIN_NAMESPACE
-class QNetworkProxy;
-QT_END_NAMESPACE
-
-/** Interface from Qt to configuration data structure for Bitcoin client.
+/** Interface from Qt to configuration data structure for RuBiX client.
    To Qt, the options are presented as a list with the different options
    laid out vertically.
    This can be changed to a tree once the settings become sufficiently
@@ -31,17 +27,13 @@ public:
         MinimizeToTray,         // bool
         MapPortUPnP,            // bool
         MinimizeOnClose,        // bool
-        ProxyUse,               // bool
-        ProxyIP,                // QString
-        ProxyPort,              // int
-        ProxySocksVersion,      // int
         Fee,                    // qint64
         ReserveBalance,         // qint64
-        DisplayUnit,            // BitcoinUnits::Unit
+        DisplayUnit,            // RuBiXUnits::Unit
         Language,               // QString
         CoinControlFeatures,    // bool
-        UseBlackTheme,     // bool
-        DarksendRounds,    // int
+        UseDarkTheme,     // bool
+        MNengineRounds,    // int
         AnonymizeRuBiXAmount, //int
         OptionIDRowCount,
     };
@@ -58,7 +50,6 @@ public:
     bool getMinimizeToTray() { return fMinimizeToTray; }
     bool getMinimizeOnClose() { return fMinimizeOnClose; }
     int getDisplayUnit() { return nDisplayUnit; }
-    bool getProxySettings(QNetworkProxy& proxy) const;
     bool getCoinControlFeatures() { return fCoinControlFeatures; }
     const QString& getOverriddenByCommandLine() { return strOverriddenByCommandLine; }
 
@@ -83,7 +74,7 @@ signals:
     void transactionFeeChanged(qint64);
     void reserveBalanceChanged(qint64);
     void coinControlFeaturesChanged(bool);
-    void darksendRoundsChanged(int);
+    void mnengineRoundsChanged(int);
     void AnonymizeRuBiXAmountChanged(int);
 };
 

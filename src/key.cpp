@@ -4,8 +4,8 @@
 
 #include "key.h"
 
-#include "crypto/common.h"
-#include "crypto/hmac_sha512.h"
+#include "crypto/common/common.h"
+#include "crypto/common/hmac_sha512.h"
 #include "pubkey.h"
 
 #include <secp256k1.h>
@@ -198,7 +198,7 @@ bool CKey::VerifyPubKey(const CPubKey& pubkey) const {
         return false;
     }
     unsigned char rnd[8];
-    std::string str = "Bitcoin key verification\n";
+    std::string str = "RuBiX key verification\n";
     GetRandBytes(rnd, sizeof(rnd));
     uint256 hash;
     CHash256().Write((unsigned char*)str.data(), str.size()).Write(rnd, sizeof(rnd)).Finalize(hash.begin());

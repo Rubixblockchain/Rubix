@@ -10,7 +10,7 @@
 #include "sync.h"
 #include "net.h"
 #include "key.h"
-#include "core.h"
+#include "chain.h"
 #include "util.h"
 #include "script.h"
 #include "base58.h"
@@ -66,7 +66,7 @@ private:
     std::map<COutPoint, int64_t> mWeAskedForMasternodeListEntry;
 
 public:
-    // keep track of dsq count to prevent masternodes from gaming darksend queue
+    // keep track of dsq count to prevent masternodes from gaming mnengine queue
     int64_t nDsqCount;
 
     IMPLEMENT_SERIALIZE

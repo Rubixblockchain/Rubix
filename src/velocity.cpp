@@ -1,6 +1,7 @@
 // Copyright (c) 2014 The Cryptocoin Revival Foundation
-// Copyright (c) 2015-2019 The CryptoCoderz Team / Espers
-// Copyright (c) 2018-2019 The Rubix Developers
+// Copyright (c) 2015-2020 The CryptoCoderz Team / Espers
+// Copyright (c) 2018-2020 The Rubix Project
+// Copyright (c) 2018-2020 The RuBiX Project
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -47,7 +48,6 @@ bool Velocity(CBlockIndex* prevBlock, CBlock* block)
     int64_t TXvalue = 0;
     int64_t TXinput = 0;
     int64_t TXfee = 0;
-    int64_t TXnondevfee = 0;
     int64_t TXdevfee = 0;
     int64_t TXnetfee = 0;
     int64_t TXcount = 0;
@@ -172,16 +172,16 @@ bool Velocity(CBlockIndex* prevBlock, CBlock* block)
                 TXinput = tx.GetValueIn(mapInputs);
                 TXfee = TXinput - TXvalue;
                 if(TXfee > devopsPayment){
-                    TXnondevfee = TXfee - devopsPayment;
+                    TXnetfee = TXfee - devopsPayment;
                 }
                 else{
-                    TXnondevfee = devopsPayment - TXfee;
+                    TXnetfee = devopsPayment - TXfee;
                 }
-                if(TXfee > TXnondevfee){
-                    TXdevfee = TXfee - TXnondevfee;
+                if(TXfee > TXnetfee){
+                    TXdevfee = TXfee - TXnetfee;
                 }
                 else{
-                    TXdevfee = TXnondevfee - TXfee;
+                    TXdevfee = TXnetfee - TXfee;
                 }
 
             }

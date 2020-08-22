@@ -40,7 +40,7 @@ Q_IMPORT_PLUGIN(qtaccessiblewidgets)
 #endif
 
 // Need a global reference for the notifications to find the GUI
-static BitcoinGUI *guiref;
+static RuBiXGUI *guiref;
 static QSplashScreen *splashref;
 
 static void ThreadSafeMessageBox(const std::string& message, const std::string& caption, unsigned int style)
@@ -83,7 +83,13 @@ static void InitMessage(const std::string &message)
 {
     if(splashref)
     {
-        splashref->showMessage(QString::fromStdString(message), Qt::AlignBottom|Qt::AlignHCenter, QColor(232,186,63));
+        splashref->showMessage(QString::fromStdString(message), Qt::AlignBottom|Qt::AlignHCenter, QColor(255,255,255));
+
+        if(!fUseDarkTheme)
+        {
+            splashref->showMessage(QString::fromStdString(message), Qt::AlignBottom|Qt::AlignHCenter, QColor(97,78,176));
+        }
+
         QApplication::instance()->processEvents();
     }
     LogPrintf("init message: %s\n", message);
@@ -102,7 +108,7 @@ static std::string Translate(const char* psz)
 static void handleRunawayException(std::exception *e)
 {
     PrintExceptionContinue(e, "Runaway exception");
-    QMessageBox::critical(0, "Runaway exception", BitcoinGUI::tr("A fatal error occurred. RuBiX can no longer continue safely and will quit.") + QString("\n\n") + QString::fromStdString(strMiscWarning));
+    QMessageBox::critical(0, "Runaway exception", RuBiXGUI::tr("A fatal error occurred. RuBiX can no longer continue safely and will quit.") + QString("\n\n") + QString::fromStdString(strMiscWarning));
     exit(1);
 }
 
@@ -224,11 +230,19 @@ int main(int argc, char *argv[])
     // on mac, also change the icon now because it would look strange to have a testnet splash (green) and a std app icon (orange)
     if(GetBoolArg("-testnet", false))
     {
-        MacDockIconHandler::instance()->setIcon(QIcon(":icons/bitcoin_testnet"));
+        MacDockIconHandler::instance()->setIcon(QIcon(fUseDarkTheme ? ":icons/dark/bitcoin_testnet" : ":icons/bitcoin_testnet"));
     }
 #endif
 
-    QSplashScreen splash(QPixmap(":/images/splash"), 0);
+    QString splashSelect = ":/images/splash-dark";
+
+    if (!fUseDarkTheme)
+    {
+        splashSelect = ":/images/splash";
+    }
+
+    QSplashScreen splash(QPixmap(splashSelect), 0);
+
     if (GetBoolArg("-splash", true) && !GetBoolArg("-min", false))
     {
         splash.show();
@@ -241,8 +255,8 @@ int main(int argc, char *argv[])
 
     try
     {
-        if (fUseBlackTheme)
-            GUIUtil::SetBlackThemeQSS(app);
+        if (fUseDarkTheme)
+            GUIUtil::SetDarkThemeQSS(app);
 
         // Regenerate startup link, to fix links to old versions
         if (GUIUtil::GetStartOnSystemStartup())
@@ -250,7 +264,7 @@ int main(int argc, char *argv[])
 
         boost::thread_group threadGroup;
 
-        BitcoinGUI window;
+        RuBiXGUI window;
         guiref = &window;
 
         QTimer* pollShutdownTimer = new QTimer(guiref);
@@ -270,11 +284,11 @@ int main(int argc, char *argv[])
 
                 ClientModel clientModel(&optionsModel);
                 WalletModel walletModel(pwalletMain, &optionsModel);
-		MessageModel messageModel(pwalletMain, &walletModel);
+                MessageModel messageModel(pwalletMain, &walletModel);
 
                 window.setClientModel(&clientModel);
                 window.setWalletModel(&walletModel);
-		window.setMessageModel(&messageModel);
+                window.setMessageModel(&messageModel);
 
                 // If -min option passed, start window minimized.
                 if(GetBoolArg("-min", false))
@@ -296,10 +310,9 @@ int main(int argc, char *argv[])
                 window.hide();
                 window.setClientModel(0);
                 window.setWalletModel(0);
-		window.setMessageModel(0);
                 guiref = 0;
             }
-            // Shutdown the core and its threads, but don't exit Bitcoin-Qt here
+            // Shutdown the core and its threads, but don't exit RuBiX-Qt here
             threadGroup.interrupt_all();
             threadGroup.join_all();
             Shutdown();

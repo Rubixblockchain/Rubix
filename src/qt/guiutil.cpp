@@ -7,6 +7,7 @@
 #include "walletmodel.h"
 
 #include "init.h"
+#include "protocol.h"
 #include "util.h"
 
 #ifdef WIN32
@@ -90,8 +91,8 @@ QFont bitcoinAddressFont()
 
 void setupAddressWidget(QLineEdit *widget, QWidget *parent)
 {
-    widget->setMaxLength(BitcoinAddressValidator::MaxAddressLength);
-    widget->setValidator(new BitcoinAddressValidator(parent));
+    widget->setMaxLength(RuBiXAddressValidator::MaxAddressLength);
+    widget->setValidator(new RuBiXAddressValidator(parent));
     widget->setFont(bitcoinAddressFont());
 }
 
@@ -104,7 +105,7 @@ void setupAmountWidget(QLineEdit *widget, QWidget *parent)
     widget->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
 }
 
-bool parseBitcoinURI(const QUrl &uri, SendCoinsRecipient *out)
+bool parseRuBiXURI(const QUrl &uri, SendCoinsRecipient *out)
 {
     // NovaCoin: check prefix
     if(uri.scheme() != QString("RuBiX"))
@@ -137,7 +138,7 @@ bool parseBitcoinURI(const QUrl &uri, SendCoinsRecipient *out)
         {
             if(!i->second.isEmpty())
             {
-                if(!BitcoinUnits::parse(BitcoinUnits::BTC, i->second, &rv.amount))
+                if(!RuBiXUnits::parse(RuBiXUnits::CCASH, i->second, &rv.amount))
                 {
                     return false;
                 }
@@ -155,18 +156,18 @@ bool parseBitcoinURI(const QUrl &uri, SendCoinsRecipient *out)
     return true;
 }
 
-bool parseBitcoinURI(QString uri, SendCoinsRecipient *out)
+bool parseRuBiXURI(QString uri, SendCoinsRecipient *out)
 {
-    // Convert RuBiX:// to RuBiX:
+    // Convert rubix:// to RuBiX:
     //
     //    Cannot handle this later, because bitcoin:// will cause Qt to see the part after // as host,
     //    which will lower-case it (and thus invalidate the address).
-    if(uri.startsWith("RuBiX://", Qt::CaseInsensitive))
+    if(uri.startsWith("rubix://", Qt::CaseInsensitive))
     {
         uri.replace(0, 11, "RuBiX:");
     }
     QUrl uriInstance(uri);
-    return parseBitcoinURI(uriInstance, out);
+    return parseRuBiXURI(uriInstance, out);
 }
 
 QString HtmlEscape(const QString& str, bool fMultiLine)
@@ -200,6 +201,19 @@ void copyEntryData(QAbstractItemView *view, int column, int role)
         // Copy first item
         setClipboard(selection.at(0).data(role).toString());
     }
+}
+
+QString getEntryData(QAbstractItemView *view, int column, int role)
+{
+    if(!view || !view->selectionModel())
+        return QString();
+    QModelIndexList selection = view->selectionModel()->selectedRows(column);
+
+    if(!selection.isEmpty()) {
+        // Return first item
+        return (selection.at(0).data(role).toString());
+    }
+    return QString();
 }
 
 QString getSaveFileName(QWidget *parent, const QString &caption,
@@ -710,35 +724,38 @@ void HelpMessageBox::showOrPrint()
 #endif
 }
 
-void SetBlackThemeQSS(QApplication& app)
+void SetDarkThemeQSS(QApplication& app)
 {
     app.setStyleSheet("QWidget        { background: rgb(41,44,48); }"
                       "QFrame         { border: none; }"
                       "QComboBox      { color: rgb(255,255,255); }"
                       "QComboBox QAbstractItemView::item { color: rgb(255,255,255); }"
-                      "QPushButton    { background: rgb(226,189,121); color: rgb(21,21,21); }"
+                      "QPushButton    { background: rgb(48,152,198); color: rgb(255,255,255); }"
                       "QDoubleSpinBox { background: rgb(63,67,72); color: rgb(255,255,255); border-color: rgb(194,194,194); }"
                       "QLineEdit      { background: rgb(63,67,72); color: rgb(255,255,255); border-color: rgb(194,194,194); }"
                       "QTextEdit      { background: rgb(63,67,72); color: rgb(255,255,255); }"
                       "QPlainTextEdit { background: rgb(63,67,72); color: rgb(255,255,255); }"
-                      "QMenuBar       { background: rgb(41,44,48); color: rgb(110,116,126); }"
+                      "QMenuBar       { background: rgb(41,44,48); color: rgb(194,194,194); }"
                       "QMenu          { background: rgb(30,32,36); color: rgb(222,222,222); }"
-                      "QMenu::item:selected { background-color: rgb(48,140,198); }"
-                      "QLabel         { color: rgb(120,127,139); }"
+                      "QMenu::item:selected { background-color: rgb(18,19,20); }"
+                      "QLabel         { color: rgb(194,194,194); }"
                       "QScrollBar     { color: rgb(255,255,255); }"
-                      "QCheckBox      { color: rgb(120,127,139); }"
-                      "QRadioButton   { color: rgb(120,127,139); }"
-                      "QTabBar::tab   { color: rgb(120,127,139); border: 1px solid rgb(78,79,83); border-bottom: none; padding: 5px; }"
+                      "QCheckBox      { color: rgb(194,194,194); }"
+                      "QRadioButton   { color: rgb(194,194,194); }"
+                      "QSpinBox       { color: rgb(194,194,194); }"
+                      "QTabBar::tab   { color: rgb(194,194,194)); border: 1px solid rgb(78,79,83); border-bottom: none; padding: 5px; }"
                       "QTabBar::tab:selected  { background: rgb(41,44,48); }"
                       "QTabBar::tab:!selected { background: rgb(24,26,30); margin-top: 2px; }"
                       "QTabWidget::pane { border: 1px solid rgb(78,79,83); }"
-                      "QToolButton    { background: rgb(30,32,36); color: rgb(116,122,134); border: none; border-left-color: rgb(30,32,36); border-left-style: solid; border-left-width: 6px; margin-top: 8px; margin-bottom: 8px; }"
-                      "QToolButton:checked { color: rgb(255,255,255); border: none; border-left-color: rgb(215,173,94); border-left-style: solid; border-left-width: 6px; }"
-                      "QProgressBar   { color: rgb(149,148,148); border-color: rgb(255,255,255); border-width: 3px; border-style: solid; }"
-                      "QProgressBar::chunk { background: rgb(255,255,255); }"
+                      "QToolButton    { background: rgb(41,44,48); color: rgb(255,255,255); border: none; border-left-color: rgb(41,44,48); border-left-style: solid; border-left-width: 6px; margin-top: 8px; margin-bottom: 8px; }"
+                      "QToolButton:checked { color: rgb(255,255,255); border: none; border-left-color: rgb(41,44,48); border-left-style: solid; border-left-width: 6px; }"
+                      "QProgressBar   { color: rgb(194,194,194); border-color: rgb(255,255,255); border-width: 3px; border-style: solid; }"
+                      "QProgressBar::chunk { background: rgb(255,255,255); color: rgb(194,194,194); }"
                       "QTreeView::item { background: rgb(41,44,48); color: rgb(212,213,213); }"
-                      "QTreeView::item:selected { background-color: rgb(48,140,198); }"
-                      "QTableView     { background: rgb(66,71,78); color: rgb(212,213,213); gridline-color: rgb(157,160,165); }"
+                      "QTreeView::item:selected { background-color: rgb(18,19,20); }"
+                      "QTableView     { background: rgb(18,19,20); color: rgb(212,213,213); gridline-color: rgb(157,160,165); }"
+                      "QTableWidget   { background: rgb(41,44,48); color: rgb(212,213,213); }"// TODO: Finish theme
+                      "QTabWidget     { background: rgb(41,44,48); color: rgb(212,213,213); }"// TODO: Finish theme
                       "QHeaderView::section { background: rgb(29,34,39); color: rgb(255,255,255); }"
                       "QToolBar       { background: rgb(30,32,36); border: none; }");
 }
@@ -771,5 +788,63 @@ QString boostPathToQString(const boost::filesystem::path &path)
     return QString::fromStdString(path.string());
 }
 #endif
+
+QString formatDurationStr(int secs)
+{
+    QStringList strList;
+    int days = secs / 86400;
+    int hours = (secs % 86400) / 3600;
+    int mins = (secs % 3600) / 60;
+    int seconds = secs % 60;
+
+    if (days)
+        strList.append(QString(QObject::tr("%1 d")).arg(days));
+    if (hours)
+        strList.append(QString(QObject::tr("%1 h")).arg(hours));
+    if (mins)
+        strList.append(QString(QObject::tr("%1 m")).arg(mins));
+    if (seconds || (!days && !hours && !mins))
+        strList.append(QString(QObject::tr("%1 s")).arg(seconds));
+
+    return strList.join(" ");
+}
+
+QString formatServicesStr(uint64_t mask)
+{
+    QStringList strList;
+
+    // Just scan the last 8 bits for now.
+    for (int i=0; i < 8; i++) {
+        uint64_t check = 1 << i;
+        if (mask & check)
+        {
+            switch (check)
+            {
+            case NODE_NETWORK:
+                strList.append(QObject::tr("NETWORK"));
+                break;
+            default:
+                strList.append(QString("%1[%2]").arg(QObject::tr("UNKNOWN")).arg(check));
+            }
+        }
+    }
+
+    if (strList.size())
+        return strList.join(" & ");
+    else
+        return QObject::tr("None");
+
+}
+
+QString formatPingTime(double dPingTime)
+{
+    return dPingTime == 0 ? QObject::tr("N/A") : QString(QObject::tr("%1 s")).arg(QString::number(dPingTime, 'f', 3));
+}
+
+QString formatTimeOffset(int64_t nTimeOffset)
+{
+  return QString(QObject::tr("%1 s")).arg(QString::number((int)nTimeOffset, 10));
+}
+
 
 } // namespace GUIUtil

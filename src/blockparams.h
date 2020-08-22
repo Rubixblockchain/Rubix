@@ -1,27 +1,29 @@
-// Copyright (c) 2016-2019 The CryptoCoderz Team / Espers
-// Copyright (c) 2019 The CryptoCoderz Team / INSaNe project
-// Copyright (c) 2018-2019 The Rubix project
+// Copyright (c) 2016-2020 The CryptoCoderz Team / Espers
+// Copyright (c) 2018-2020 The CryptoCoderz Team / INSaNe project
+// Copyright (c) 2018-2020 The Rubix project
+// Copyright (c) 2018-2020 The RuBiX project
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #ifndef BITCOIN_BLOCKPARAMS_H
 #define BITCOIN_BLOCKPARAMS_H
 
 #include "net.h"
-#include "core.h"
+#include "chain.h"
 #include "bignum.h"
+#include "base58.h"
 
-#define START_MASTERNODE_PAYMENTS_TESTNET      9993058800  // OFF (NOT TOGGLED) // to be added 1548720000
-#define START_MASTERNODE_PAYMENTS              9993058800  // OFF (NOT TOGGLED)
+#define START_MASTERNODE_PAYMENTS_TESTNET      9993058800  // OFF (NOT TOGGLED)
+#define START_MASTERNODE_PAYMENTS              1554494400  // OFF (Friday, April 5, 2019 1:00:00 PM GMT-07:00 | PDT)
 #define STOP_MASTERNODE_PAYMENTS_TESTNET       9993058800  // OFF (NOT TOGGLED)
 #define STOP_MASTERNODE_PAYMENTS               9993058800  // OFF (NOT TOGGLED)
 
-#define START_DEVOPS_PAYMENTS_TESTNET          1520198278  // ON Sunday, March 4, 2018 9:17:58 PM
-#define START_DEVOPS_PAYMENTS                  1520198278  // ON Sunday, March 4, 2018 9:17:58 PM
+#define START_DEVOPS_PAYMENTS_TESTNET          9993058800  // OFF (NOT TOGGLED)
+#define START_DEVOPS_PAYMENTS                  1554494400  // OFF (Friday, April 5, 2019 1:00:00 PM GMT-07:00 | PDT)
 #define STOP_DEVOPS_PAYMENTS_TESTNET           9993058800  // OFF (NOT TOGGLED)
 #define STOP_DEVOPS_PAYMENTS                   9993058800  // OFF (NOT TOGGLED)
 
-#define INSTANTX_SIGNATURES_REQUIRED           5
-#define INSTANTX_SIGNATURES_TOTAL              12
+#define INSTANTX_SIGNATURES_REQUIRED           2
+#define INSTANTX_SIGNATURES_TOTAL              4
 
 // Define difficulty retarget algorithms
 enum DiffMode {
@@ -42,6 +44,5 @@ int64_t GetProofOfWorkReward(int nHeight, int64_t nFees);
 int64_t GetProofOfStakeReward(const CBlockIndex* pindexPrev, int64_t nCoinAge, int64_t nFees);
 int64_t GetMasternodePayment(int nHeight, int64_t blockValue);
 int64_t GetDevOpsPayment(int nHeight, int64_t blockValue);
-
 
 #endif // BITCOIN_BLOCKPARAMS_H

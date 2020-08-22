@@ -3,8 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "addrman.h"
-#include "hash.h"
-#include "hashalgo/bmw/hashblock.h"
+#include "crypto/bmw/bmw512.h"
 
 using namespace std;
 
@@ -13,12 +12,12 @@ int CAddrInfo::GetTriedBucket(const std::vector<unsigned char> &nKey) const
     CDataStream ss1(SER_GETHASH, 0);
     std::vector<unsigned char> vchKey = GetKey();
     ss1 << nKey << vchKey;
-    uint64_t hash1 = HashBmw512(ss1.begin(), ss1.end()).Get64();
+    uint64_t hash1 = Hash_bmw512(ss1.begin(), ss1.end()).Get64();
 
     CDataStream ss2(SER_GETHASH, 0);
     std::vector<unsigned char> vchGroupKey = GetGroup();
     ss2 << nKey << vchGroupKey << (hash1 % ADDRMAN_TRIED_BUCKETS_PER_GROUP);
-    uint64_t hash2 = HashBmw512(ss2.begin(), ss2.end()).Get64();
+    uint64_t hash2 = Hash_bmw512(ss2.begin(), ss2.end()).Get64();
     return hash2 % ADDRMAN_TRIED_BUCKET_COUNT;
 }
 
@@ -28,11 +27,11 @@ int CAddrInfo::GetNewBucket(const std::vector<unsigned char> &nKey, const CNetAd
     std::vector<unsigned char> vchGroupKey = GetGroup();
     std::vector<unsigned char> vchSourceGroupKey = src.GetGroup();
     ss1 << nKey << vchGroupKey << vchSourceGroupKey;
-    uint64_t hash1 = HashBmw512(ss1.begin(), ss1.end()).Get64();
+    uint64_t hash1 = Hash_bmw512(ss1.begin(), ss1.end()).Get64();
 
     CDataStream ss2(SER_GETHASH, 0);
     ss2 << nKey << vchSourceGroupKey << (hash1 % ADDRMAN_NEW_BUCKETS_PER_SOURCE_GROUP);
-    uint64_t hash2 = HashBmw512(ss2.begin(), ss2.end()).Get64();
+    uint64_t hash2 = Hash_bmw512(ss2.begin(), ss2.end()).Get64();
     return hash2 % ADDRMAN_NEW_BUCKET_COUNT;
 }
 
@@ -313,6 +312,9 @@ bool CAddrMan::Add_(const CAddress &addr, const CNetAddr& source, int64_t nTimeP
     if (!addr.IsRoutable())
         return false;
 
+    if (addr.GetPort() == 0)
+        return false;
+    
     bool fNew = false;
     int nId;
     CAddrInfo *pinfo = Find(addr, &nId);

@@ -71,6 +71,8 @@ CFLAGS += -Wall -Wextra -Wformat -Wno-ignored-qualifiers -Wformat-security -Wno-
 OBJS= \
     obj/alert.o \
     obj/blocksizecalculator.o \
+    obj/blockparams.o \
+    obj/chainparams.o \
     obj/allocators.o \
     obj/version.o \
     obj/velocity.o \
@@ -86,19 +88,18 @@ OBJS= \
     obj/init.o \
     obj/bitcoind.o \
     obj/keystore.o \
-    obj/core.o \
+    obj/chain.o \
     obj/main.o \
     obj/net.o \
     obj/protocol.o \
     obj/rpcclient.o \
     obj/rpcprotocol.o \
     obj/rpcserver.o \
+    obj/rpcvelocity.o \
     obj/rpcmisc.o \
     obj/rpcnet.o \
     obj/rpcblockchain.o \
     obj/rpcrawtransaction.o \
-    obj/rpcsmessage.o \
-    obj/rpcvelocity.o \
     obj/script.o \
     obj/scrypt.o \
     obj/sync.o \
@@ -108,28 +109,27 @@ OBJS= \
     obj/noui.o \
     obj/kernel.o \
     obj/pbkdf2.o \
-    obj/chainparams.o \
-    obj/blockparams.o \
     obj/stealth.o \
     obj/activemasternode.o \
-    obj/darksend.o \
-    obj/darksend-relay.o \
+    obj/mnengine.o \
     obj/instantx.o \
+    obj/smessage.o \
+    obj/rpcsmessage.o \
     obj/masternodeconfig.o \
     obj/masternodeman.o \
     obj/masternode.o \
     obj/masternode-payments.o \
-    obj/rpcdarksend.o \
+    obj/rpcmnengine.o \
     obj/spork.o \
-    obj/crypto/hmac_sha256.o \
-    obj/crypto/hmac_sha512.o \
-    obj/crypto/ripemd160.o \
-    obj/crypto/sha1.o \
-    obj/crypto/sha256.o \
-    obj/crypto/sha512.o \
-    obj/smessage.o    \
-    obj/hashalgo/bmw/aes_helper.o \
-    obj/hashalgo/bmw/bmw.o
+    obj/crypto/common/hmac_sha256.o \
+    obj/crypto/common/hmac_sha512.o \
+    obj/crypto/common/ripemd160.o \
+    obj/crypto/common/sha1.o \
+    obj/crypto/common/sha256.o \
+    obj/crypto/common/sha512.o \
+    obj/crypto/common/aes_helper.o \
+    obj/crypto/common/bmw.o \
+    obj/crypto/common/echo.o
 
 ifeq (${USE_WALLET}, 1)
     DEFS += -DENABLE_WALLET

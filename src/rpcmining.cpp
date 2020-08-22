@@ -42,42 +42,6 @@ void ShutdownRPCMining()
     delete pMiningKey; pMiningKey = NULL;
 }
 
-Value getgenerate(const Array& params, bool fHelp)
-{
-    if (fHelp || params.size() != 0)
-        throw runtime_error(
-            "getgenerate\n"
-            "Returns true or false.");
-
-    return GetBoolArg("-gen", false);
-}
-
-Value setgenerate(const Array& params, bool fHelp)
-{
-    if (fHelp || params.size() < 1 || params.size() > 2)
-        throw runtime_error(
-            "setgenerate <generate> [genproclimit]\n"
-            "<generate> is true or false to turn generation on or off.\n"
-            "Generation is limited to [genproclimit] processors, -1 is unlimited.");
-
-    bool fGenerate = true;
-    if (params.size() > 0)
-        fGenerate = params[0].get_bool();
-
-    int nGenProcLimit = 1;
-    if (params.size() > 1)
-    {
-        nGenProcLimit = params[1].get_int();
-        mapArgs["-genproclimit"] = itostr(nGenProcLimit);
-        if (nGenProcLimit == 0)
-            fGenerate = false;
-    }
-    mapArgs["-gen"] = (fGenerate ? "1" : "0");
-
-    GenerateBitcoins(fGenerate, pwalletMain, nGenProcLimit);
-    return Value::null;
-}
-
 Value getsubsidy(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() > 1)
@@ -134,25 +98,25 @@ Value getmininginfo(const Array& params, bool fHelp)
     obj.push_back(Pair("currentblocksize",(uint64_t)nLastBlockSize));
     obj.push_back(Pair("currentblocktx",(uint64_t)nLastBlockTx));
 
-    diff.push_back(Pair("proof-of-work",        GetDifficulty()));
-    diff.push_back(Pair("proof-of-stake",       GetDifficulty(GetLastBlockIndex(pindexBest, true))));
-    diff.push_back(Pair("search-interval",      (int)nLastCoinStakeSearchInterval));
-    obj.push_back(Pair("difficulty",    diff));
+    diff.push_back(Pair("proof-of-work", GetDifficulty()));
+    diff.push_back(Pair("proof-of-stake", GetDifficulty(GetLastBlockIndex(pindexBest, true))));
+    diff.push_back(Pair("search-interval", (int)nLastCoinStakeSearchInterval));
+    obj.push_back(Pair("difficulty", diff));
 
-    obj.push_back(Pair("blockvalue-PoS",    (uint64_t)getstakesubsidy));
-    obj.push_back(Pair("blockvalue-PoW",    nRewardPoW));
-    obj.push_back(Pair("netmhashps",     GetPoWMHashPS()));
+    obj.push_back(Pair("blockvalue-PoS", (uint64_t)getstakesubsidy));
+    obj.push_back(Pair("blockvalue-PoW", nRewardPoW));
+    obj.push_back(Pair("netmhashps",  GetPoWMHashPS()));
     obj.push_back(Pair("netstakeweight", GetPoSKernelPS()));
-    obj.push_back(Pair("errors",        GetWarnings("statusbar")));
-    obj.push_back(Pair("pooledtx",      (uint64_t)mempool.size()));
+    obj.push_back(Pair("errors", GetWarnings("statusbar")));
+    obj.push_back(Pair("pooledtx", (uint64_t)mempool.size()));
 
-    weight.push_back(Pair("minimum",    (uint64_t)nWeight));
-    weight.push_back(Pair("maximum",    (uint64_t)0));
-    weight.push_back(Pair("combined",  (uint64_t)nWeight));
+    weight.push_back(Pair("minimum", (uint64_t)nWeight));
+    weight.push_back(Pair("maximum", (uint64_t)0));
+    weight.push_back(Pair("combined", (uint64_t)nWeight));
     obj.push_back(Pair("stakeweight", weight));
 
-    obj.push_back(Pair("stakeinterest",    (uint64_t)COIN_YEAR_REWARD));
-    obj.push_back(Pair("testnet",       TestNet()));
+    obj.push_back(Pair("stakeinterest", (uint64_t)getstakesubsidy));
+    obj.push_back(Pair("testnet", TestNet()));
     return obj;
 }
 
@@ -165,7 +129,7 @@ Value getstakinginfo(const Array& params, bool fHelp)
 
     uint64_t nWeight = 0;
     uint64_t nExpectedTime = 0;
-    
+
     if (pwalletMain)
         nWeight = pwalletMain->GetStakeWeight();
 
@@ -191,16 +155,19 @@ Value getstakinginfo(const Array& params, bool fHelp)
 
     obj.push_back(Pair("expectedtime", nExpectedTime));
 
+    obj.push_back(Pair("stakethreshold", GetStakeCombineThreshold() / COIN));
+
     return obj;
 }
 
 Value checkkernel(const Array& params, bool fHelp)
 {
-    if (fHelp || params.size() < 1 || params.size() > 2)
+    if (fHelp || params.size() < 1 || params.size() > 2) {
         throw runtime_error(
             "checkkernel [{\"txid\":txid,\"vout\":n},...] [createblocktemplate=false]\n"
             "Check if one of given inputs is a kernel input at the moment.\n"
         );
+    }
 
     RPCTypeCheck(params, list_of(array_type)(bool_type));
 
@@ -210,8 +177,8 @@ Value checkkernel(const Array& params, bool fHelp)
     if (vNodes.empty())
         throw JSONRPCError(-9, "RuBiX is not connected!");
 
-   // if (IsInitialBlockDownload())
-   //     throw JSONRPCError(-10, "RuBiX is downloading blocks...");
+    if (IsInitialBlockDownload())
+        throw JSONRPCError(-10, "RuBiX is downloading blocks...");
 
     COutPoint kernel;
     CBlockIndex* pindexPrev = pindexBest;
@@ -261,10 +228,11 @@ Value checkkernel(const Array& params, bool fHelp)
         return result;
 
     int64_t nFees;
+
     #ifdef __GNUC__
     #define GCC_VERSION (__GNUC__ * 10000 \
-                        + __GNUC_MINOR__ * 100 \
-                        + __GNUC_PATCHLEVEL__)
+                     + __GNUC_MINOR__ * 100 \
+                     + __GNUC_PATCHLEVEL__)
 
     /* Test for GCC < 6.3.0 */
     #if GCC_VERSION > 60300
@@ -304,11 +272,16 @@ Value getworkex(const Array& params, bool fHelp)
     if (vNodes.empty())
         throw JSONRPCError(-9, "RuBiX is not connected!");
 
-  //  if (IsInitialBlockDownload())
-  //      throw JSONRPCError(-10, "RuBiX is downloading blocks...");
+    if (IsInitialBlockDownload())
+        throw JSONRPCError(-10, "RuBiX is downloading blocks...");
 
-    if (pindexBest->nHeight >= Params().EndPoWBlock())
-        throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
+    if (pindexBest->nHeight >= Params().EndPoWBlock()){
+        if(pindexBest->GetBlockTime() >= nPoWToggle){
+            if(pindexBest->nHeight > Params().EndPoWBlock_v2()){
+                throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
+            }
+        }
+    }
 
     typedef map<uint256, pair<CBlock*, CScript> > mapNewBlock_t;
     static mapNewBlock_t mapNewBlock;
@@ -366,8 +339,8 @@ Value getworkex(const Array& params, bool fHelp)
         std::vector<uint256> merkle = pblock->GetMerkleBranch(0);
 
         Object result;
-        result.push_back(Pair("data",     HexStr(BEGIN(pdata), END(pdata))));
-        result.push_back(Pair("target",   HexStr(BEGIN(hashTarget), END(hashTarget))));
+        result.push_back(Pair("data",   HexStr(BEGIN(pdata), END(pdata))));
+        result.push_back(Pair("target", HexStr(BEGIN(hashTarget), END(hashTarget))));
 
         CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
         ssTx << coinbaseTx;
@@ -438,11 +411,16 @@ Value getwork(const Array& params, bool fHelp)
     if (vNodes.empty())
         throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "RuBiX is not connected!");
 
-  //  if (IsInitialBlockDownload())
-  //      throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "RuBiX is downloading blocks...");
+    if (IsInitialBlockDownload())
+        throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "RuBiX is downloading blocks...");
 
-    if (pindexBest->nHeight >= Params().EndPoWBlock())
-        throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
+    if (pindexBest->nHeight >= Params().EndPoWBlock()){
+        if(pindexBest->GetBlockTime() >= nPoWToggle){
+            if(pindexBest->nHeight > Params().EndPoWBlock_v2()){
+                throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
+            }
+        }
+    }
 
     typedef map<uint256, pair<CBlock*, CScript> > mapNewBlock_t;
     static mapNewBlock_t mapNewBlock;    // FIXME: thread safety
@@ -506,9 +484,9 @@ Value getwork(const Array& params, bool fHelp)
 
         Object result;
         result.push_back(Pair("midstate", HexStr(BEGIN(pmidstate), END(pmidstate)))); // deprecated
-        result.push_back(Pair("data",     HexStr(BEGIN(pdata), END(pdata))));
-        result.push_back(Pair("hash1",    HexStr(BEGIN(phash1), END(phash1)))); // deprecated
-        result.push_back(Pair("target",   HexStr(BEGIN(hashTarget), END(hashTarget))));
+        result.push_back(Pair("data", HexStr(BEGIN(pdata), END(pdata))));
+        result.push_back(Pair("hash1", HexStr(BEGIN(phash1), END(phash1)))); // deprecated
+        result.push_back(Pair("target", HexStr(BEGIN(hashTarget), END(hashTarget))));
         return result;
     }
     else
@@ -590,11 +568,16 @@ Value getblocktemplate(const Array& params, bool fHelp)
     if (vNodes.empty())
         throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "RuBiX is not connected!");
 
-    //if (IsInitialBlockDownload())
-    //    throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "RuBiX is downloading blocks...");
+    if (IsInitialBlockDownload())
+        throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "RuBiX is downloading blocks...");
 
-    if (pindexBest->nHeight >= Params().EndPoWBlock())
-        throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
+    if (pindexBest->nHeight >= Params().EndPoWBlock()){
+        if(pindexBest->GetBlockTime() >= nPoWToggle){
+            if(pindexBest->nHeight > Params().EndPoWBlock_v2()){
+                throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
+            }
+        }
+    }
 
     // Update block
     static unsigned int nTransactionsUpdatedLast;
@@ -684,6 +667,7 @@ Value getblocktemplate(const Array& params, bool fHelp)
         aMutable.push_back("time");
         aMutable.push_back("transactions");
         aMutable.push_back("prevblock");
+        aMutable.push_back("version/force");
     }
 
     Array aVotes;
@@ -699,17 +683,24 @@ Value getblocktemplate(const Array& params, bool fHelp)
     // Check for payment upgrade fork
     if (pindexBest->GetBlockTime() > 0)
     {
-        if (pindexBest->GetBlockTime() > nLiveForkToggle){// TODO: Verify Upgrade
+        if (pindexBest->GetBlockTime() > nPaymentUpdate_1) // Monday, May 20, 2019 12:00:00 AM
+        {
             // Set Masternode / DevOps payments
             int64_t masternodePayment = GetMasternodePayment(pindexPrev->nHeight+1, networkPayment);
             int64_t devopsPayment = GetDevOpsPayment(pindexPrev->nHeight+1, networkPayment);
+            std::string devpayee2 = "CcABDmWkcSZPw8rMtoobShVFuudhf1svZu"; // CVGQAbKX5MvmsSN4x1GeCNqNsxzkPJuWEW
+
+            if (pindexBest->GetBlockTime() < nPaymentUpdate_2) {
+                devpayee2 = Params().DevOpsAddress();
+            }
 
             // Include DevOps payments
             CAmount devopsSplit = devopsPayment;
-            result.push_back(Pair("devops_payee", Params().DevOpsAddress()));
-            result.push_back(Pair("payee_amount", (int64_t)devopsSplit));
+            result.push_back(Pair("devops_payee", devpayee2));
+            result.push_back(Pair("devops_amount", (int64_t)devopsSplit));
             result.push_back(Pair("devops_payments", true));
             result.push_back(Pair("enforce_devops_payments", true));
+
             // Include Masternode payments
             CAmount masternodeSplit = masternodePayment;
             CMasternode* winningNode = mnodeman.GetCurrentMasterNode(1);
@@ -720,7 +711,7 @@ Value getblocktemplate(const Array& params, bool fHelp)
                 CBitcoinAddress address2(address1);
                 result.push_back(Pair("masternode_payee", address2.ToString().c_str()));
             } else {
-                result.push_back(Pair("masternode_payee", Params().DevOpsAddress().c_str()));
+                result.push_back(Pair("masternode_payee", devpayee2.c_str()));
             }
             result.push_back(Pair("payee_amount", (int64_t)masternodeSplit));
             result.push_back(Pair("masternode_payments", true));
@@ -769,4 +760,3 @@ Value submitblock(const Array& params, bool fHelp)
 
     return Value::null;
 }
-

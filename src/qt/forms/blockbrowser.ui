@@ -35,8 +35,7 @@
    <string>Form</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">color: rgb(204, 155, 68);
-background-color: rgb(16, 16, 16);</string>
+   <string notr="true"/>
   </property>
   <layout class="QGridLayout">
    <property name="sizeConstraint">
@@ -59,7 +58,7 @@ background-color: rgb(16, 16, 16);</string>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <layout class="QGridLayout" name="gridLayout">
+     <layout class="QGridLayout" name="gridLayout01">
       <item row="0" column="0">
        <layout class="QHBoxLayout" name="horizontalLayout_4">
         <property name="spacing">
@@ -70,10 +69,16 @@ background-color: rgb(16, 16, 16);</string>
           <property name="font">
            <font>
             <family>Open Sans,sans-serif</family>
+            <pointsize>16</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
            </font>
           </property>
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
           <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:20px; font-weight:600; color:#000000;&quot;&gt;Block Explorer &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>Block Explorer</string>
           </property>
          </widget>
         </item>

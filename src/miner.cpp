@@ -16,7 +16,7 @@ using namespace std;
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// Bitcoin-Miner
+// RuBiXMiner
 //
 
 extern unsigned int nMinerSleep;
@@ -184,7 +184,7 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
     {
         LOCK2(cs_main, mempool.cs);
         CTxDB txdb("r");
-//> RBX <
+//> CCASH <
         // Priority order to process transactions
         list<COrphan> vOrphan; // list memory doesn't move
         map<uint256, vector<COrphan*> > mapDependers;
@@ -367,12 +367,13 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
 
         if (fDebug && GetBoolArg("-printpriority", false))
             LogPrintf("CreateNewBlock(): total size %u\n", nBlockSize);
-        // > RBX <
+        // > CCASH <
         if (!fProofOfStake){
             pblock->vtx[0].vout[0].nValue = GetProofOfWorkReward(pindexPrev->nHeight + 1, nFees);
+
             // Check for payment update fork
             if(pindexBest->GetBlockTime() > 0){
-                if(pindexBest->GetBlockTime() > nLiveForkToggle){ // TODO: Verify upgrade
+                if(pindexBest->GetBlockTime() > nPaymentUpdate_1){ // Monday, May 20, 2019 12:00:00 AM
                     // masternode/devops payment
                     int64_t blockReward = GetProofOfWorkReward(pindexPrev->nHeight + 1, nFees);
                     bool hasPayment = true;
@@ -395,11 +396,12 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
                     //
                     CBitcoinAddress devopaddress;
                     if (Params().NetworkID() == CChainParams::MAIN) {
-                        devopaddress = CBitcoinAddress("RmG7TTPEJDhNAvK4jy2oShizc8WmeF7pKH");
+                        if(GetTime() < nPaymentUpdate_2) { devopaddress = CBitcoinAddress("Ce1XyENjUHHPBt8mxy2LupkH2PnequevMM"); } // TODO: Ce1XyENjUHHPBt8mxy2LupkH2PnequevMM
+                        else { devopaddress = CBitcoinAddress("Ce1XyENjUHHPBt8mxy2LupkH2PnequevMM"); } // Ce1XyENjUHHPBt8mxy2LupkH2PnequevMM
                     } else if (Params().NetworkID() == CChainParams::TESTNET) {
-                        devopaddress = CBitcoinAddress("");
+                        devopaddress = CBitcoinAddress(""); // Input DevOps for Testnet
                     } else if (Params().NetworkID() == CChainParams::REGTEST) {
-                        devopaddress = CBitcoinAddress("");
+                        devopaddress = CBitcoinAddress(""); // input DevOps for Regnet
                     }
 
                     // verify address
@@ -541,16 +543,17 @@ void FormatHashBuffers(CBlock* pblock, char* pmidstate, char* pdata, char* phash
 bool CheckWork(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey)
 {
     uint256 hashBlock = pblock->GetHash();
+    uint256 hashProof = pblock->GetPoWHash();
     uint256 hashTarget = CBigNum().SetCompact(pblock->nBits).getuint256();
 
     if(!pblock->IsProofOfWork())
         return error("CheckWork() : %s is not a proof-of-work block", hashBlock.GetHex());
 
-    if (hashBlock > hashTarget)
+    if (hashProof > hashTarget)
         return error("CheckWork() : proof-of-work not meeting target");
 
     //// debug print
-    LogPrintf("CheckWork() : new proof-of-work block found  \n  proof hash: %s  \ntarget: %s\n", hashBlock.GetHex(), hashTarget.GetHex());
+    LogPrintf("CheckWork() : new proof-of-work block found  \n  proof hash: %s  \ntarget: %s\n", hashProof.GetHex(), hashTarget.GetHex());
     LogPrintf("%s\n", pblock->ToString());
     LogPrintf("generated %s\n", FormatMoney(pblock->vtx[0].vout[0].nValue));
 
@@ -665,7 +668,7 @@ void ThreadStakeMiner(CWallet *pwallet)
         // Create new block
         //
         int64_t nFees;
-        #ifdef __GNUC__
+            #ifdef __GNUC__
         #define GCC_VERSION (__GNUC__ * 10000 \
                             + __GNUC_MINOR__ * 100 \
                             + __GNUC_PATCHLEVEL__)
@@ -694,136 +697,3 @@ void ThreadStakeMiner(CWallet *pwallet)
             MilliSleep(nMinerSleep);
     }
 }
-
-#ifdef ENABLE_WALLET
-//////////////////////////////////////////////////////////////////////////////
-//
-// Internal miner
-//
-double dHashesPerSec = 0.0;
-int64_t nHPSTimerStart = 0;
-
-void static BitcoinMiner(CWallet *pwallet)
-{
-    LogPrintf("RubixMiner started\n");
-    SetThreadPriority(THREAD_PRIORITY_LOWEST);
-    RenameThread("rubix-miner");
-
-    // Each thread has its own key and counter
-    CReserveKey reservekey(pwallet);
-    unsigned int nExtraNonce = 0;
-
-    try { while (true) {
-
-        // Busy-wait for the network to come online so we don't waste time mining
-        // on an obsolete chain. In regtest mode we expect to fly solo.
-        while (vNodes.empty())
-            MilliSleep(1000);
-
-
-        //
-        // Create new block
-        //
-        unsigned int nTransactionsUpdatedLast = mempool.GetTransactionsUpdated();
-        CBlockIndex* pindexPrev = pindexBest;
-
-        int64_t nFees;
-        auto_ptr<CBlock> pblocktemplate(CreateNewBlock(reservekey, false, &nFees));
-        if (!pblocktemplate.get())
-            return;
-    CBlock *pblock = pblocktemplate.get();
-
-        IncrementExtraNonce(pblock, pindexPrev, nExtraNonce);
-
-        LogPrintf("Running RubixMiner with %llu transactions in block (%u bytes)\n", pblock->vtx.size(),
-               ::GetSerializeSize(*pblock, SER_NETWORK, PROTOCOL_VERSION));
-
-        uint256 hashTarget = CBigNum().SetCompact(pblock->nBits).getuint256();
-    int64_t nStart = GetTime();
-    uint256 hash;
-
-        while (true)
-        {
-            unsigned int nHashesDone = 0;
-            hash = pblock->GetHash();
-
-            if (hash <= hashTarget)
-            {
-                // Found a solution
-                SetThreadPriority(THREAD_PRIORITY_NORMAL);
-                CheckWork(pblock, *pwallet, reservekey);
-                SetThreadPriority(THREAD_PRIORITY_LOWEST);
-                break;
-            }
-        ++pblock->nNonce;
-
-            // Meter hashes/sec
-            static int64_t nHashCounter;
-            if (nHPSTimerStart == 0)
-            {
-                nHPSTimerStart = GetTimeMillis();
-                nHashCounter = 0;
-            }
-            else
-                nHashCounter += nHashesDone;
-            if (GetTimeMillis() - nHPSTimerStart > 4000)
-            {
-                static CCriticalSection cs;
-                {
-                    LOCK(cs);
-                    if (GetTimeMillis() - nHPSTimerStart > 4000)
-                    {
-                        dHashesPerSec = 1000.0 * nHashCounter / (GetTimeMillis() - nHPSTimerStart);
-                        nHPSTimerStart = GetTimeMillis();
-                        nHashCounter = 0;
-                        LogPrintf("hashmeter %6.0f khash/s\n", dHashesPerSec/1000.0);
-                    }
-                }
-            }
-
-            // Check for stop or if block needs to be rebuilt
-            boost::this_thread::interruption_point();
-            if (vNodes.empty())
-                break;
-            if (pblock->nNonce >= 0xffff0000)
-                break;
-            if (mempool.GetTransactionsUpdated() != nTransactionsUpdatedLast && GetTime() - nStart > 60)
-                break;
-            if (pindexPrev != pindexBest)
-                break;
-
-            // Update nTime every few seconds
-        pblock->UpdateTime(pindexPrev);
-
-            if (TestNet())
-            {
-                // Changing pblock->nTime can change work required on testnet:
-                hashTarget = CBigNum().SetCompact(pblock->nBits).getuint256();
-            }
-        }
-    } }
-    catch (boost::thread_interrupted)
-    {
-        LogPrintf("RubixMiner terminated\n");
-        throw;
-    }
-}
-
-void GenerateBitcoins(bool fGenerate, CWallet* pwallet, int nThreads)
-{
-    static boost::thread_group* minerThreads = NULL;
-    nThreads = boost::thread::hardware_concurrency();
-
-    if (minerThreads != NULL)
-    {
-    minerThreads->interrupt_all();
-    delete minerThreads;
-    minerThreads = NULL;
-    }
-    if (nThreads == 0 || !fGenerate)
-    return;
-    minerThreads = new boost::thread_group();
-    for (int i = 0; i < nThreads; i++)
-    minerThreads->create_thread(boost::bind(&BitcoinMiner, pwallet));
-}
-#endif

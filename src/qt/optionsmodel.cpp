@@ -14,11 +14,11 @@
 #include "walletdb.h"
 #endif
 
-#include <QNetworkProxy>
+
 #include <QSettings>
 #include <QStringList>
 
-bool fUseBlackTheme;
+bool fUseDarkTheme;
 
 OptionsModel::OptionsModel(QObject *parent) :
     QAbstractListModel(parent)
@@ -53,24 +53,24 @@ void OptionsModel::Init()
 
     // Display
     if (!settings.contains("nDisplayUnit"))
-        settings.setValue("nDisplayUnit", BitcoinUnits::BTC);
+        settings.setValue("nDisplayUnit", RuBiXUnits::CCASH);
     nDisplayUnit = settings.value("nDisplayUnit").toInt();
     
-    fUseBlackTheme = settings.value("fUseBlackTheme", false).toBool();
+    fUseDarkTheme = settings.value("fUseDarkTheme", false).toBool();
     
     if (!settings.contains("fCoinControlFeatures"))
         settings.setValue("fCoinControlFeatures", false);
     fCoinControlFeatures = settings.value("fCoinControlFeatures", false).toBool();
 
     // Dark Send
-    if (!settings.contains("nDarksendRounds"))
-        settings.setValue("nDarksendRounds", 2);
-    nDarksendRounds = settings.value("nDarksendRounds").toLongLong();
+    if (!settings.contains("nMNengineRounds"))
+        settings.setValue("nMNengineRounds", 2);
+    nMNengineRounds = settings.value("nMNengineRounds").toLongLong();
     if (!settings.contains("nAnonymizeRuBiXAmount"))
         settings.setValue("nAnonymizeRuBiXAmount", 1000);
     nAnonymizeRuBiXAmount = settings.value("nAnonymizeRuBiXAmount").toLongLong();
-    if (settings.contains("nDarksendRounds"))
-        SoftSetArg("-darksendrounds", settings.value("nDarksendRounds").toString().toStdString());
+    if (settings.contains("nMNengineRounds"))
+        SoftSetArg("-mnenginerounds", settings.value("nMNengineRounds").toString().toStdString());
     if (settings.contains("nAnonymizeRuBiXAmount"))
         SoftSetArg("-anonymizeRuBiXamount", settings.value("nAnonymizeRuBiXAmount").toString().toStdString());
 
@@ -106,19 +106,6 @@ void OptionsModel::Init()
 #endif
     if (!SoftSetBoolArg("-upnp", settings.value("fUseUPnP").toBool()))
         addOverriddenOption("-upnp");
-
-    if (!settings.contains("fUseProxy"))
-        settings.setValue("fUseProxy", false);
-    if (!settings.contains("addrProxy"))
-        settings.setValue("addrProxy", "127.0.0.1:9050");
-    // Only try to set -proxy, if user has enabled fUseProxy
-    if (settings.value("fUseProxy").toBool() && !SoftSetArg("-proxy", settings.value("addrProxy").toString().toStdString()))
-        addOverriddenOption("-proxy");
-    if (!settings.contains("nSocksVersion"))
-        settings.setValue("nSocksVersion", 5);
-    // Only try to set -socks, if user has enabled fUseProxy
-    if (settings.value("fUseProxy").toBool() && !SoftSetArg("-socks", settings.value("nSocksVersion").toString().toStdString()))
-        addOverriddenOption("-socks");
 
     // Display
     if (!settings.contains("language"))
@@ -169,22 +156,6 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
         case MinimizeOnClose:
             return fMinimizeOnClose;
 
-        // default proxy
-        case ProxyUse:
-            return settings.value("fUseProxy", false);
-        case ProxyIP: {
-            // contains IP at index 0 and port at index 1
-            QStringList strlIpPort = settings.value("addrProxy").toString().split(":", QString::SkipEmptyParts);
-            return strlIpPort.at(0);
-        }
-        case ProxyPort: {
-            // contains IP at index 0 and port at index 1
-            QStringList strlIpPort = settings.value("addrProxy").toString().split(":", QString::SkipEmptyParts);
-            return strlIpPort.at(1);
-        }
-        case ProxySocksVersion:
-            return settings.value("nSocksVersion", 5);
-
 #ifdef ENABLE_WALLET
         case Fee:
             // Attention: Init() is called before nTransactionFee is set in AppInit2()!
@@ -204,12 +175,12 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
             return settings.value("language");
         case CoinControlFeatures:
             return fCoinControlFeatures;
-        case DarksendRounds:
-            return QVariant(nDarksendRounds);
+        case MNengineRounds:
+            return QVariant(nMNengineRounds);
         case AnonymizeRuBiXAmount:
             return QVariant(nAnonymizeRuBiXAmount);
-        case UseBlackTheme:
-            return QVariant(fUseBlackTheme);
+        case UseDarkTheme:
+            return QVariant(fUseDarkTheme);
         default:
             return QVariant();
         }
@@ -242,44 +213,6 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
             settings.setValue("fMinimizeOnClose", fMinimizeOnClose);
             break;
 
-        // default proxy
-        case ProxyUse:
-            if (settings.value("fUseProxy") != value) {
-                settings.setValue("fUseProxy", value.toBool());
-                setRestartRequired(true);
-            }
-            break;
-        case ProxyIP: {
-            // contains current IP at index 0 and current port at index 1
-            QStringList strlIpPort = settings.value("addrProxy").toString().split(":", QString::SkipEmptyParts);
-            // if that key doesn't exist or has a changed IP
-            if (!settings.contains("addrProxy") || strlIpPort.at(0) != value.toString()) {
-                // construct new value from new IP and current port
-                QString strNewValue = value.toString() + ":" + strlIpPort.at(1);
-                settings.setValue("addrProxy", strNewValue);
-                setRestartRequired(true);
-            }
-        }
-        break;
-        case ProxyPort: {
-            // contains current IP at index 0 and current port at index 1
-            QStringList strlIpPort = settings.value("addrProxy").toString().split(":", QString::SkipEmptyParts);
-            // if that key doesn't exist or has a changed port
-            if (!settings.contains("addrProxy") || strlIpPort.at(1) != value.toString()) {
-                // construct new value from current IP and new port
-                QString strNewValue = strlIpPort.at(0) + ":" + value.toString();
-                settings.setValue("addrProxy", strNewValue);
-                setRestartRequired(true);
-            }
-        }
-        break;
-        case ProxySocksVersion: {
-            if (settings.value("nSocksVersion") != value) {
-                settings.setValue("nSocksVersion", value.toInt());
-                setRestartRequired(true);
-            }
-        }
-        break;
 #ifdef ENABLE_WALLET
         case Fee: // core option - can be changed on-the-fly
             // Todo: Add is valid check  and warn via message, if not
@@ -309,14 +242,14 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
             settings.setValue("fCoinControlFeatures", fCoinControlFeatures);
             emit coinControlFeaturesChanged(fCoinControlFeatures);
             break;
-        case UseBlackTheme:
-            fUseBlackTheme = value.toBool();
-            settings.setValue("fUseBlackTheme", fUseBlackTheme);
+        case UseDarkTheme:
+            fUseDarkTheme = value.toBool();
+            settings.setValue("fUseDarkTheme", fUseDarkTheme);
             break;
-        case DarksendRounds:
-            nDarksendRounds = value.toInt();
-            settings.setValue("nDarksendRounds", nDarksendRounds);
-            emit darksendRoundsChanged(nDarksendRounds);
+        case MNengineRounds:
+            nMNengineRounds = value.toInt();
+            settings.setValue("nMNengineRounds", nMNengineRounds);
+            emit mnengineRoundsChanged(nMNengineRounds);
             break;
         case AnonymizeRuBiXAmount:
             nAnonymizeRuBiXAmount = value.toInt();
@@ -330,33 +263,6 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
     emit dataChanged(index, index);
 
     return successful;
-}
-
-bool OptionsModel::getProxySettings(QNetworkProxy& proxy) const
-{
-    // Directly query current base proxy, because
-    // GUI settings can be overridden with -proxy.
-    proxyType curProxy;
-    if (GetProxy(NET_IPV4, curProxy)) {
-        if (curProxy.second == 5) {
-            proxy.setType(QNetworkProxy::Socks5Proxy);
-            proxy.setHostName(QString::fromStdString(curProxy.first.ToStringIP()));
-            proxy.setPort(curProxy.first.GetPort());
-
-            return true;
-        }
-        else
-            return false;
-    }
-    else
-        proxy.setType(QNetworkProxy::NoProxy);
-
-
-
-
-
-
-    return true;
 }
 
 void OptionsModel::setRestartRequired(bool fRequired)

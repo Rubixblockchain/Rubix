@@ -10,7 +10,7 @@
 #include <QApplication>
 #include <qmath.h> // for qPow()
 
-BitcoinAmountField::BitcoinAmountField(QWidget *parent):
+RuBiXAmountField::RuBiXAmountField(QWidget *parent):
         QWidget(parent), amount(0), currentUnit(-1)
 {
     amount = new QDoubleSpinBox(this);
@@ -23,7 +23,7 @@ BitcoinAmountField::BitcoinAmountField(QWidget *parent):
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->addWidget(amount);
     unit = new QValueComboBox(this);
-    unit->setModel(new BitcoinUnits(this));
+    unit->setModel(new RuBiXUnits(this));
     layout->addWidget(unit);
     layout->addStretch(1);
     layout->setContentsMargins(0,0,0,0);
@@ -41,7 +41,7 @@ BitcoinAmountField::BitcoinAmountField(QWidget *parent):
     unitChanged(unit->currentIndex());
 }
 
-void BitcoinAmountField::setText(const QString &text)
+void RuBiXAmountField::setText(const QString &text)
 {
     if (text.isEmpty())
         amount->clear();
@@ -49,18 +49,18 @@ void BitcoinAmountField::setText(const QString &text)
         amount->setValue(text.toDouble());
 }
 
-void BitcoinAmountField::clear()
+void RuBiXAmountField::clear()
 {
     amount->clear();
     unit->setCurrentIndex(0);
 }
 
-bool BitcoinAmountField::validate()
+bool RuBiXAmountField::validate()
 {
     bool valid = true;
     if (amount->value() == 0.0)
         valid = false;
-    if (valid && !BitcoinUnits::parse(currentUnit, text(), 0))
+    if (valid && !RuBiXUnits::parse(currentUnit, text(), 0))
         valid = false;
 
     setValid(valid);
@@ -68,7 +68,7 @@ bool BitcoinAmountField::validate()
     return valid;
 }
 
-void BitcoinAmountField::setValid(bool valid)
+void RuBiXAmountField::setValid(bool valid)
 {
     if (valid)
         amount->setStyleSheet("");
@@ -76,7 +76,7 @@ void BitcoinAmountField::setValid(bool valid)
         amount->setStyleSheet(STYLE_INVALID);
 }
 
-QString BitcoinAmountField::text() const
+QString RuBiXAmountField::text() const
 {
     if (amount->text().isEmpty())
         return QString();
@@ -84,7 +84,7 @@ QString BitcoinAmountField::text() const
         return amount->text();
 }
 
-bool BitcoinAmountField::eventFilter(QObject *object, QEvent *event)
+bool RuBiXAmountField::eventFilter(QObject *object, QEvent *event)
 {
     if (event->type() == QEvent::FocusIn)
     {
@@ -105,16 +105,16 @@ bool BitcoinAmountField::eventFilter(QObject *object, QEvent *event)
     return QWidget::eventFilter(object, event);
 }
 
-QWidget *BitcoinAmountField::setupTabChain(QWidget *prev)
+QWidget *RuBiXAmountField::setupTabChain(QWidget *prev)
 {
     QWidget::setTabOrder(prev, amount);
     return amount;
 }
 
-CAmount BitcoinAmountField::value(bool *valid_out) const
+CAmount RuBiXAmountField::value(bool *valid_out) const
 {
     CAmount val_out = 0;
-    bool valid = BitcoinUnits::parse(currentUnit, text(), &val_out);
+    bool valid = RuBiXUnits::parse(currentUnit, text(), &val_out);
     if(valid_out)
     {
         *valid_out = valid;
@@ -122,18 +122,18 @@ CAmount BitcoinAmountField::value(bool *valid_out) const
     return val_out;
 }
 
-void BitcoinAmountField::setValue(const CAmount& value)
+void RuBiXAmountField::setValue(const CAmount& value)
 {
-    setText(BitcoinUnits::format(currentUnit, value));
+    setText(RuBiXUnits::format(currentUnit, value));
 }
 
-void BitcoinAmountField::unitChanged(int idx)
+void RuBiXAmountField::unitChanged(int idx)
 {
     // Use description tooltip for current unit for the combobox
     unit->setToolTip(unit->itemData(idx, Qt::ToolTipRole).toString());
 
     // Determine new unit ID
-    int newUnit = unit->itemData(idx, BitcoinUnits::UnitRole).toInt();
+    int newUnit = unit->itemData(idx, RuBiXUnits::UnitRole).toInt();
 
     // Parse current value and convert to new unit
     bool valid = false;
@@ -142,8 +142,8 @@ void BitcoinAmountField::unitChanged(int idx)
     currentUnit = newUnit;
 
     // Set max length after retrieving the value, to prevent truncation
-    amount->setDecimals(BitcoinUnits::decimals(currentUnit));
-    amount->setMaximum(qPow(10, BitcoinUnits::amountDigits(currentUnit)) - qPow(10, -amount->decimals()));
+    amount->setDecimals(RuBiXUnits::decimals(currentUnit));
+    amount->setMaximum(qPow(10, RuBiXUnits::amountDigits(currentUnit)) - qPow(10, -amount->decimals()));
 
     if(valid)
     {
@@ -158,7 +158,7 @@ void BitcoinAmountField::unitChanged(int idx)
     setValid(true);
 }
 
-void BitcoinAmountField::setDisplayUnit(int newUnit)
+void RuBiXAmountField::setDisplayUnit(int newUnit)
 {
     unit->setValue(newUnit);
 }

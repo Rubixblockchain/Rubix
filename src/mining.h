@@ -1,13 +1,13 @@
-// Copyright (c) 2016-2019 The CryptoCoderz Team / Espers
-// Copyright (c) 2019 The CryptoCoderz Team / INSaNe project
-// Copyright (c) 2018-2019 The Rubix project
+// Copyright (c) 2016-2020 The CryptoCoderz Team / Espers
+// Copyright (c) 2018-2020 The CryptoCoderz Team / INSaNe project
+// Copyright (c) 2018-2020 The Rubix project
+// Copyright (c) 2018-2020 The RuBiX project
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #ifndef BITCOIN_MINING_H
 #define BITCOIN_MINING_H
 
 #include "bignum.h"
-#include "fork.h"
 
 /** Minimum nCoinAge required to stake PoS */
 static const unsigned int nStakeMinAge = 2 / 60; // 30 minutes
@@ -16,36 +16,27 @@ static const unsigned int nModifierInterval = 2 * 60;
 /** Genesis block subsidy */
 static const int64_t nGenesisBlockReward = 1 * COIN;
 /** Reserve block subsidy */
-static const int64_t nBlockRewardReserve = 1164000000 * COIN; // 3% reserved for development
-/** Starting block subsidy */
-static const int64_t nBlockPoWReward = 500 * COIN;
-/** PoW Superblock modifier */
-static const int64_t nSuperModifier = 2;
-/** PoS Reward */
-static const int64_t COIN_YEAR_REWARD = 8.2 * CENT; // Corrected in v2.0.0.0+
-/** PoS Superblock Reward */
-static const int64_t COIN_SPRB_REWARD = 12 * CENT; // Corrected in v2.0.0.0+
+static const int64_t nBlockRewardReserve = 2000000 * COIN; // premine 200,000,000 CCASH
+/** Standard block subsidy */
+static const int64_t nBlockStandardReward = 125 * COIN; // Tier 2 will create it's own nStandardReward
 /** Block spacing preferred */
-static const int64_t BLOCK_SPACING = 5 * 60; // 5 minutes and 0 seconds
+static const int64_t BLOCK_SPACING = (1 * 60); // One Minute
 /** Block spacing minimum */
-static const int64_t BLOCK_SPACING_MIN = 3.5 * 60; // 3 minutes and 30 seconds
+static const int64_t BLOCK_SPACING_MIN = (1 * 30); // Half a minute (30sec)
 /** Block spacing maximum */
-static const int64_t BLOCK_SPACING_MAX = 7.5 * 60; // 7 minutes and 30 seconds
+static const int64_t BLOCK_SPACING_MAX = (1 * 90); // One minute and a half (1.5min)
 /** Desired block times/spacing */
 static const int64_t GetTargetSpacing = BLOCK_SPACING;
-/** Darksend collateral */
-static const int64_t DARKSEND_COLLATERAL = (0.01*COIN);
-/** Darksend pool values */
-static const int64_t DARKSEND_POOL_MAX = (4999.99*COIN);
-/** MasterNode required collateral (Legacy) */
-inline int64_t MasternodeCollateral_v1(int nHeight) { return 50000250; } // 50.00025M RBX required as collateral
-/** MasterNode required collateral (Current) */
-inline int64_t MasternodeCollateral_v2(int nHeight) { return 625000; } // .625 Million RBX required as collateral
-/** MasterNode required collateral (Toggle) */
-inline int64_t MasternodeCollateral(int nHeight, int nProtocolTime) { return IsProtocolV3_1(nProtocolTime) ? MasternodeCollateral_v2(nHeight) : MasternodeCollateral_v1(nHeight); }
+/** MNengine collateral */
+static const int64_t MNengine_COLLATERAL = (1 * COIN);
+/** MNengine pool values */
+static const int64_t MNengine_POOL_MAX = (999 * COIN);
+/** MasterNode required collateral */
+inline int64_t MasternodeCollateral(int nHeight) { return 250000; } // .25 Million CCASH required as collateral
 /** Coinbase transaction outputs can only be staked after this number of new blocks (network rule) */
-static const int nStakeMinConfirmations = 12;
+static const int nStakeMinConfirmations = 5;
 /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
 static const int nCoinbaseMaturity = 15; // 15-TXs | 90-Mined
+
 
 #endif // BITCOIN_MINING_H

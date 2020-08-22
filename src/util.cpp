@@ -82,17 +82,15 @@ string strMasterNodeAddr = "";
 bool fLiteMode = false;
 bool fEnableInstantX = true;
 int nInstantXDepth = 10;
-int nDarksendRounds = 2;
+int nMNengineRounds = 2;
 int nAnonymizeRuBiXAmount = 1000;
 int nLiquidityProvider = 0;
 /** Spork enforcement enabled time */
 int64_t enforceMasternodePaymentsTime = 4085657524;
 int nMasternodeMinProtocol = 0;
 bool fSucessfullyLoaded = false;
-bool fEnableDarksend = false;
-/** All denominations used by darksend */
-std::vector<int64_t> darkSendDenominations;
-// Standard Features
+bool fEnableMNengine = false;
+//Standard features
 map<string, string> mapArgs;
 map<string, vector<string> > mapMultiArgs;
 bool fDebug = false;
@@ -112,6 +110,9 @@ string strLiveForkToggle = "";
 int64_t nLiveForkToggle = 0;
 //MasterNode recipient verification delay base time
 int64_t nMasterNodeChecksDelayBaseTime = 0;
+//MasterNode peer IP advanced relay system toggle
+bool fMnAdvRelay = false;
+
 // Init OpenSSL library multithreading support
 static CCriticalSection** ppmutexOpenSSL;
 void locking_callback(int mode, int i, const char* file, int line)
@@ -1109,13 +1110,13 @@ void PrintExceptionContinue(std::exception* pex, const char* pszThread)
 boost::filesystem::path GetDefaultDataDir()
 {
     namespace fs = boost::filesystem;
-    // Windows < Vista: C:\Documents and Settings\Username\Application Data\RBX
-    // Windows >= Vista: C:\Users\Username\AppData\Roaming\RBX
-    // Mac: ~/Library/Application Support/RBX
-    // Unix: ~/.RBX
+    // Windows < Vista: C:\Documents and Settings\Username\Application Data\CCASH
+    // Windows >= Vista: C:\Users\Username\AppData\Roaming\CCASH
+    // Mac: ~/Library/Application Support/CCASH
+    // Unix: ~/.CCASH
 #ifdef WIN32
     // Windows
-    return GetSpecialFolderPath(CSIDL_APPDATA) / "RBX";
+    return GetSpecialFolderPath(CSIDL_APPDATA) / "CCASH";
 #else
     fs::path pathRet;
     char* pszHome = getenv("HOME");
@@ -1127,10 +1128,10 @@ boost::filesystem::path GetDefaultDataDir()
     // Mac
     pathRet /= "Library/Application Support";
     fs::create_directory(pathRet);
-    return pathRet / "RBX";
+    return pathRet / "CCASH";
 #else
     // Unix
-    return pathRet / ".RBX";
+    return pathRet / ".CCASH";
 #endif
 #endif
 }
@@ -1204,31 +1205,50 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
                FILE* ConfFile = fopen(ConfPath.string().c_str(), "w");
                fprintf(ConfFile, "listen=1\n");
                fprintf(ConfFile, "server=1\n");
-               fprintf(ConfFile, "maxconnections=500\n");
+               fprintf(ConfFile, "maxconnections=150\n");
                fprintf(ConfFile, "rpcuser=yourusername\n");
 
-               char s[34];
-               for (int i = 0; i < 34; ++i)
+               char s[32];
+               for (int i = 0; i < 32; ++i)
                {
                    s[i] = alphanum[rand() % (sizeof(alphanum) - 1)];
                }
 
-               std::string str(s, 34);
-               std::string rpcpass = "rpcpassword=" + str + "\n";
-               fprintf(ConfFile, rpcpass.c_str());
-               fprintf(ConfFile, "port=20029\n");
-               fprintf(ConfFile, "rpcport=20167\n");
+               std::string str(s, 32);
+               fprintf(ConfFile, "rpcpassword=%s\n", str.c_str());
+               fprintf(ConfFile, "port=19427\n");
+               fprintf(ConfFile, "rpcport=18695\n");
                fprintf(ConfFile, "rpcconnect=127.0.0.1\n");
                fprintf(ConfFile, "rpcallowip=127.0.0.1\n");
-               fprintf(ConfFile, "addnode=46.101.73.64\n");
-               fprintf(ConfFile, "addnode=188.166.109.87\n");
-               fprintf(ConfFile, "addnode=159.203.240.221\n");
-               fprintf(ConfFile, "addnode=165.227.34.98\n");
-
+               fprintf(ConfFile, "addnode=45.77.210.8:19427\n");
+               fprintf(ConfFile, "addnode=45.77.210.8\n");
+               fprintf(ConfFile, "addnode=45.77.210.234:19427\n");
+               fprintf(ConfFile, "addnode=45.77.210.234\n");
+               fprintf(ConfFile, "addnode=192.168.1.14:19427\n");
+               fprintf(ConfFile, "addnode=192.168.1.14\n");
+               fprintf(ConfFile, "addnode=104.238.156.128:19427\n");
+               fprintf(ConfFile, "addnode=104.238.156.128\n");
+               fprintf(ConfFile, "addnode=66.42.71.176:19427\n");
+               fprintf(ConfFile, "addnode=66.42.71.176\n");
+               fprintf(ConfFile, "addnode=110.109.107.71:19427\n");
+               fprintf(ConfFile, "addnode=110.109.107.71\n");
+               fprintf(ConfFile, "addnode=82.165.119.20:19427\n");
+               fprintf(ConfFile, "addnode=82.165.119.20\n");
+               fprintf(ConfFile, "addnode=82.165.115.26:19427\n");
+               fprintf(ConfFile, "addnode=82.165.115.26\n");
+               fprintf(ConfFile, "addnode=217.160.29.63:19427\n");
+               fprintf(ConfFile, "addnode=217.160.29.63\n");
+               fprintf(ConfFile, "addnode=138.197.161.183:19427\n");
+               fprintf(ConfFile, "addnode=138.197.161.183\n");
+               fprintf(ConfFile, "addnode=157.230.107.144:19427\n");
+               fprintf(ConfFile, "addnode=157.230.107.144\n");
+               fprintf(ConfFile, "addnode=137.220.34.237:19427\n");
+               fprintf(ConfFile, "addnode=137.220.34.237\n");
+               fprintf(ConfFile, "addnode=184.166.67.221:19427\n");
+               fprintf(ConfFile, "addnode=184.166.67.221\n");
+               fprintf(ConfFile, "addnode=167.99.88.37:19427\n");
+               fprintf(ConfFile, "addnode=167.99.88.37\n");
                fclose(ConfFile);
-
-               // Returns our config path, created config file is loaded during initial run...
-               return ;
     }
 
     // Wallet will reload config file so it is properly read...
@@ -1303,7 +1323,7 @@ std::string getTimeString(int64_t timestamp, char *buffer, size_t nBuffer)
     struct tm* dt;
     time_t t = timestamp;
     dt = localtime(&t);
-    
+
     strftime(buffer, nBuffer, "%Y-%m-%d %H:%M:%S %z", dt); // %Z shows long strings on windows
     return std::string(buffer); // copies the null-terminated character sequence
 };
@@ -1318,7 +1338,7 @@ std::string bytesReadable(uint64_t nBytes)
         return strprintf("%.2f MB", nBytes/1024.0/1024.0);
     if (nBytes >= 1024)
         return strprintf("%.2f KB", nBytes/1024.0);
-    
+
     return strprintf("%d B", nBytes);
 };
 

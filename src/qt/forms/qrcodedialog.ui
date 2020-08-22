@@ -7,15 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>340</width>
-    <height>530</height>
+    <height>533</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>QR Code Dialog</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">color: rgb(204, 155, 68);
-background-color: rgb(16, 16, 16);</string>
+   <string notr="true"/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
@@ -144,7 +143,7 @@ background-color: rgb(16, 16, 16);</string>
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="BitcoinAmountField" name="lnReqAmount">
+         <widget class="RuBiXAmountField" name="lnReqAmount">
           <property name="enabled">
            <bool>false</bool>
           </property>
@@ -189,7 +188,7 @@ background-color: rgb(16, 16, 16);</string>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>BitcoinAmountField</class>
+   <class>RuBiXAmountField</class>
    <extends>QSpinBox</extends>
    <header>bitcoinamountfield.h</header>
    <container>1</container>

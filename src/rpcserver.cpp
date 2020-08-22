@@ -10,8 +10,8 @@
 #include "util.h"
 #include "sync.h"
 #include "base58.h"
-#include "db.h"
 #include "rpcvelocity.h"
+#include "db.h"
 #include "ui_interface.h"
 #ifdef ENABLE_WALLET
 #include "wallet.h"
@@ -29,7 +29,18 @@
 #include <boost/iostreams/stream.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/version.hpp>
 #include <list>
+
+// ====== BOOST RETROCOMPATIBILITY WORKAROUND========
+
+#if BOOST_VERSION >= 107000
+#define GET_IO_SERVICE(s) ((boost::asio::io_context&)(s)->get_executor().context())
+#else
+#define GET_IO_SERVICE(s) ((s)->get_io_service())
+#endif
+
+// RETROCOMPATIBILITY SHOULD NOT BE AN OPTION
 
 using namespace std;
 using namespace boost;
@@ -39,7 +50,7 @@ using namespace json_spirit;
 static std::string strRPCUserColonPass;
 
 // These are created by StartRPCThreads, destroyed in StopRPCThreads
-static asio::io_service* rpc_io_service = NULL;
+static ioContext* rpc_io_service = NULL;
 static map<string, boost::shared_ptr<deadline_timer> > deadlineTimers;
 static ssl::context* rpc_ssl_context = NULL;
 static boost::thread_group* rpc_worker_group = NULL;
@@ -229,6 +240,9 @@ static const CRPCCommand vRPCCommands[] =
     { "addnode",                &addnode,                true,      true,      false },
     { "getaddednodeinfo",       &getaddednodeinfo,       true,      true,      false },
     { "ping",                   &ping,                   true,      false,     false },
+    { "setban",                 &setban,                 true,      false,     false },
+    { "listbanned",             &listbanned,             true,      false,     false },
+    { "clearbanned",            &clearbanned,            true,      false,     false },
     { "getnettotals",           &getnettotals,           true,      true,      false },
     { "getdifficulty",          &getdifficulty,          true,      false,     false },
     { "getinfo",                &getinfo,                true,      false,     false },
@@ -250,15 +264,12 @@ static const CRPCCommand vRPCCommands[] =
     { "verifymessage",          &verifymessage,          false,     false,     false },
     { "searchrawtransactions",  &searchrawtransactions,  false,     false,     false },
 
-/* Dark features */
+/* Masternode features */
     { "spork",                  &spork,                  true,      false,      false },
     { "masternode",             &masternode,             true,      false,      true },
     { "masternodelist",         &masternodelist,         true,      false,      false },
     
 #ifdef ENABLE_WALLET
-    { "darksend",               &darksend,               false,     false,     true },
-    { "getgenerate",            &getgenerate,            true, 	    false,     true },
-    { "setgenerate",            &setgenerate,            true, 	    false,     true },
     { "getmininginfo",          &getmininginfo,          true,      false,     false },
     { "getstakinginfo",         &getstakinginfo,         true,      false,     false },
     { "getnewaddress",          &getnewaddress,          true,      false,     true },
@@ -413,10 +424,10 @@ class AcceptedConnectionImpl : public AcceptedConnection
 {
 public:
     AcceptedConnectionImpl(
-            asio::io_service& io_service,
+            ioContext& io_context,
             ssl::context &context,
             bool fUseSSL) :
-        sslStream(io_service, context),
+        sslStream(io_context, context),
         _d(sslStream, fUseSSL),
         _stream(_d)
     {
@@ -464,8 +475,14 @@ static void RPCListen(boost::shared_ptr< basic_socket_acceptor<Protocol> > accep
                    const bool fUseSSL)
 {
     // Accept connection
-    AcceptedConnectionImpl<Protocol>* conn = new AcceptedConnectionImpl<Protocol>(acceptor->get_io_service(), context, fUseSSL);
-
+    //
+    // Boost Version < 1.70 handling - Thank you Mino#8171
+    // Boost 1.70+ update patch by https://github.com/g1itch
+    // (This improves upon Mino's 1.70 support update)
+    //
+    // AcceptedConnectionImpl<Protocol>* conn = new AcceptedConnectionImpl<Protocol>(acceptor->get_io_service(), context, fUseSSL);
+    // AcceptedConnectionImpl<Protocol>* conn = new AcceptedConnectionImpl<Protocol>(GET_IO_SERVICE(acceptor), context, fUseSSL);
+    AcceptedConnectionImpl<Protocol>* conn = new AcceptedConnectionImpl<Protocol>(GetIOServiceFromPtr(acceptor), context, fUseSSL);
     acceptor->async_accept(
             conn->sslStream.lowest_layer(),
             conn->peer,
@@ -550,7 +567,7 @@ void StartRPCThreads()
     }
 
     assert(rpc_io_service == NULL);
-    rpc_io_service = new asio::io_service();
+    rpc_io_service = new ioContext();
     rpc_ssl_context = new ssl::context(ssl::context::sslv23);
 
     const bool fUseSSL = GetBoolArg("-rpcssl", false);
@@ -633,7 +650,7 @@ void StartRPCThreads()
 
     rpc_worker_group = new boost::thread_group();
     for (int i = 0; i < GetArg("-rpcthreads", 4); i++)
-        rpc_worker_group->create_thread(boost::bind(&asio::io_service::run, rpc_io_service));
+        rpc_worker_group->create_thread(boost::bind(&ioContext::run, rpc_io_service));
 }
 
 void StopRPCThreads()
@@ -870,6 +887,17 @@ json_spirit::Value CRPCTable::execute(const std::string &strMethod, const json_s
     {
         throw JSONRPCError(RPC_MISC_ERROR, e.what());
     }
+}
+
+std::vector<std::string> CRPCTable::listCommands() const
+{
+    std::vector<std::string> commandList;
+    typedef std::map<std::string, const CRPCCommand*> commandMap;
+
+    std::transform(mapCommands.begin(), mapCommands.end(), 
+                    std::back_inserter(commandList), 
+                    boost::bind(&commandMap::value_type::first, _1));
+    return commandList;
 }
 
 std::string HelpExampleCli(string methodname, string args){

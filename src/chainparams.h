@@ -27,7 +27,7 @@ struct CDNSSeedData {
 
 /**
  * CChainParams defines various tweakable parameters of a given instance of the
- * Bitcoin system. There are three: the main network on which people trade goods
+ * RuBiX system. There are three: the main network on which people trade goods
  * and services, the public test network which gets reset from time to time and
  * a regression test mode which is intended for private networks only. It has
  * minimal difficulty to ensure that blocks can be found instantly.
@@ -60,7 +60,6 @@ public:
     int GetDefaultPort() const { return nDefaultPort; }
     const CBigNum& ProofOfWorkLimit() const { return bnProofOfWorkLimit; }
     const CBigNum& ProofOfStakeLimit() const { return bnProofOfStakeLimit; }
-    int SubsidyHalvingInterval() const { return nSubsidyHalvingInterval; }
     virtual const CBlock& GenesisBlock() const = 0;
     virtual bool RequireRPCPassword() const { return true; }
     const string& DataDir() const { return strDataDir; }
@@ -70,9 +69,10 @@ public:
     virtual const vector<CAddress>& FixedSeeds() const = 0;
     int RPCPort() const { return nRPCPort; }
     int EndPoWBlock() const { return nEndPoWBlock; }
+    int EndPoWBlock_v2() const { return nEndPoWBlock_v2; }
     int StartPoSBlock() const { return nStartPoSBlock; }
     int PoolMaxTransactions() const { return nPoolMaxTransactions; }
-    std::string DarksendPoolDummyAddress() const { return strDarksendPoolDummyAddress; }
+    std::string MNenginePoolDummyAddress() const { return strMNenginePoolDummyAddress; }
     std::string DevOpsAddress() const { return strDevOpsAddress; }
 protected:
     CChainParams() {/* Do Nothing */;}
@@ -85,14 +85,14 @@ protected:
     int nRPCPort;
     CBigNum bnProofOfWorkLimit;
     CBigNum bnProofOfStakeLimit;
-    int nSubsidyHalvingInterval;
     string strDataDir;
     vector<CDNSSeedData> vSeeds;
     std::vector<unsigned char> base58Prefixes[MAX_BASE58_TYPES];
     int nEndPoWBlock;
+    int nEndPoWBlock_v2;
     int nStartPoSBlock;
     int nPoolMaxTransactions;
-    std::string strDarksendPoolDummyAddress;
+    std::string strMNenginePoolDummyAddress;
     std::string strDevOpsAddress;
 };
 

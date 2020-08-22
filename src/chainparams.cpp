@@ -82,7 +82,6 @@ public:
         block.nTime = 1499889600
         block.nNonce = 685486
         block.GetHash = 00001162af4b590b81270287faf239153aab5195279dd72147e5cc5438cb8b3e
-
         */
 
         hashGenesisBlock = genesis.GetHash();

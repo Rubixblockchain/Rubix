@@ -14,8 +14,7 @@
    <string>Options</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">color: rgb(204, 155, 68);
-background-color: rgb(16, 16, 16);</string>
+   <string notr="true"/>
   </property>
   <property name="modal">
    <bool>true</bool>
@@ -27,7 +26,7 @@ background-color: rgb(16, 16, 16);</string>
       <enum>QTabWidget::North</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tabMain">
       <attribute name="title">
@@ -63,7 +62,7 @@ background-color: rgb(16, 16, 16);</string>
           </widget>
          </item>
          <item>
-          <widget class="BitcoinAmountField" name="transactionFee"/>
+          <widget class="RuBiXAmountField" name="transactionFee"/>
          </item>
          <item>
           <spacer name="horizontalSpacerFee">
@@ -109,7 +108,7 @@ background-color: rgb(16, 16, 16);</string>
           </widget>
          </item>
          <item>
-          <widget class="BitcoinAmountField" name="reserveBalance"/>
+          <widget class="RuBiXAmountField" name="reserveBalance"/>
          </item>
          <item>
           <spacer name="horizontalSpacerReserveBalance">
@@ -149,67 +148,6 @@ background-color: rgb(16, 16, 16);</string>
          </property>
         </spacer>
        </item>
-       <item row="6" column="0">
-        <widget class="QLabel" name="label">
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This setting determines the amount of individual masternodes that an input will be anonymized through. More rounds of anonymization gives a higher degree of privacy, but also costs more in fees.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="text">
-          <string>Darksend rounds to use</string>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="1">
-        <widget class="QSpinBox" name="darksendRounds">
-         <property name="minimum">
-          <number>2</number>
-         </property>
-         <property name="maximum">
-          <number>16</number>
-         </property>
-         <property name="value">
-          <number>3</number>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="0">
-        <widget class="QLabel" name="label_2">
-         <property name="toolTip">
-          <string>This amount acts as a threshold to turn off Darksend once it's reached.</string>
-         </property>
-         <property name="statusTip">
-          <string notr="true"/>
-         </property>
-         <property name="whatsThis">
-          <string notr="true"/>
-         </property>
-         <property name="accessibleName">
-          <string notr="true"/>
-         </property>
-         <property name="accessibleDescription">
-          <string notr="true"/>
-         </property>
-         <property name="text">
-          <string>Amount of RuBiX to keep anonymized</string>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="1">
-        <widget class="QSpinBox" name="anonymizeRuBiX">
-         <property name="minimum">
-          <number>2</number>
-         </property>
-         <property name="maximum">
-          <number>10000</number>
-         </property>
-         <property name="singleStep">
-          <number>10</number>
-         </property>
-         <property name="value">
-          <number>1000</number>
-         </property>
-        </widget>
-       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="tabNetwork">
@@ -226,85 +164,6 @@ background-color: rgb(16, 16, 16);</string>
           <string>Map port using &amp;UPnP</string>
          </property>
         </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="connectSocks">
-         <property name="toolTip">
-          <string>Connect to the RuBiX network through a SOCKS5 proxy (e.g. when connecting through Tor).</string>
-         </property>
-         <property name="text">
-          <string>&amp;Connect through SOCKS5 proxy:</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_Network">
-         <item>
-          <widget class="QLabel" name="proxyIpLabel">
-           <property name="text">
-            <string>Proxy &amp;IP:</string>
-           </property>
-           <property name="textFormat">
-            <enum>Qt::PlainText</enum>
-           </property>
-           <property name="buddy">
-            <cstring>proxyIp</cstring>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QValidatedLineEdit" name="proxyIp">
-           <property name="maximumSize">
-            <size>
-             <width>140</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>IP address of the proxy (e.g. 127.0.0.1)</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="proxyPortLabel">
-           <property name="text">
-            <string>&amp;Port:</string>
-           </property>
-           <property name="textFormat">
-            <enum>Qt::PlainText</enum>
-           </property>
-           <property name="buddy">
-            <cstring>proxyPort</cstring>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="proxyPort">
-           <property name="maximumSize">
-            <size>
-             <width>55</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Port of the proxy (e.g. 9050)</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_Network">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
        </item>
        <item>
         <spacer name="verticalSpacer_Network">
@@ -425,9 +284,9 @@ background-color: rgb(16, 16, 16);</string>
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="useBlackTheme">
+        <widget class="QCheckBox" name="useDarkTheme">
          <property name="text">
-          <string>Use black visual theme (requires restart)</string>
+          <string>Use Dark Visual theme (requires restart)</string>
          </property>
         </widget>
        </item>
@@ -528,7 +387,7 @@ background-color: rgb(16, 16, 16);</string>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>BitcoinAmountField</class>
+   <class>RuBiXAmountField</class>
    <extends>QSpinBox</extends>
    <header>bitcoinamountfield.h</header>
    <container>1</container>
@@ -537,11 +396,6 @@ background-color: rgb(16, 16, 16);</string>
    <class>QValueComboBox</class>
    <extends>QComboBox</extends>
    <header>qvaluecombobox.h</header>
-  </customwidget>
-  <customwidget>
-   <class>QValidatedLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>qvalidatedlineedit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

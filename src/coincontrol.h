@@ -1,14 +1,14 @@
 #ifndef COINCONTROL_H
 #define COINCONTROL_H
 
-#include "core.h"
+#include "chain.h"
 
 /** Coin Control Features. */
 class CCoinControl
 {
 public:
     CTxDestination destChange;
-    bool useDarkSend;
+    bool useMNengine;
     bool useInstantX;
 
     CCoinControl()
@@ -21,7 +21,7 @@ public:
         destChange = CNoDestination();
         setSelected.clear();
         useInstantX = false;
-        useDarkSend = true;
+        useMNengine = false;
     }
     
     bool HasSelected() const

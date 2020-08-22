@@ -14,8 +14,7 @@
    <string>Form</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">color: rgb(204, 155, 68);
-background-color: rgb(16, 16, 16);</string>
+   <string notr="true"/>
   </property>
   <property name="frameShape">
    <enum>QFrame::StyledPanel</enum>
@@ -97,7 +96,7 @@ background-color: rgb(16, 16, 16);</string>
    <item row="8" column="1">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="BitcoinAmountField" name="payAmount"/>
+      <widget class="RuBiXAmountField" name="payAmount"/>
      </item>
      <item>
       <widget class="QToolButton" name="deleteButton">
@@ -120,7 +119,7 @@ background-color: rgb(16, 16, 16);</string>
      <item>
       <widget class="QValidatedLineEdit" name="payTo">
        <property name="toolTip">
-        <string>The address to send the payment to (e.g. RYkuzHsrEvv6yVtXvuBHvdp6TZzRsv42Pr)</string>
+        <string>The address to send the payment to (e.g. C8gZqgY4r2RoEdqYk3QsAqFckyf9pRHN6i)</string>
        </property>
        <property name="maxLength">
         <number>80</number>
@@ -150,7 +149,7 @@ background-color: rgb(16, 16, 16);</string>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>BitcoinAmountField</class>
+   <class>RuBiXAmountField</class>
    <extends>QSpinBox</extends>
    <header>bitcoinamountfield.h</header>
    <container>1</container>

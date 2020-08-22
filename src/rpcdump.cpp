@@ -127,6 +127,9 @@ Value importprivkey(const Array& params, bool fHelp)
     if (fWalletUnlockStakingOnly)
         throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Wallet is unlocked for staking only.");
 
+    if (!pwalletMain->ImportPrivateKey(vchSecret, strLabel, fRescan))
+        throw JSONRPCError(RPC_WALLET_ERROR, "Error adding key to wallet");
+
     CKey key = vchSecret.GetKey();
     CPubKey pubkey = key.GetPubKey();
     assert(key.VerifyPubKey(pubkey));

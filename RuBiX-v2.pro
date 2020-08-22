@@ -1,6 +1,6 @@
 TEMPLATE = app
-TARGET = Rubix-qt
-VERSION = 2.1.9.4
+TARGET = RuBiX-qt
+VERSION = 1.0.7.7
 INCLUDEPATH += src src/json src/qt src/qt/plugins/mrichtexteditor
 QT += core gui widgets network printsupport
 DEFINES += ENABLE_WALLET
@@ -10,36 +10,28 @@ CONFIG += thread
 CONFIG += widgets
 CONFIG += static
 CONFIG += openssl
-CONFIG += c++11
-
-QMAKE_CXXFLAGS += -fpermissive
 
 greaterThan(QT_MAJOR_VERSION, 4) {
     QT += widgets
     DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0
 }
 
-# WIN32 OS
-# for boost 1.66+ on windows, add (MinGW_Version)-mt-s-x32-(Boost_Version)
-# as a reference refer to the below section
-
 win32{
-BOOST_LIB_SUFFIX=-mgw81-mt-s-x32-1_67
-BOOST_INCLUDE_PATH=C:/deps/boost_1_67_0
-BOOST_LIB_PATH=C:/deps/boost_1_67_0/stage/lib
-BDB_INCLUDE_PATH=C:/deps/db-6.2.32.NC/build_unix
-BDB_LIB_PATH=C:/deps/db-6.2.32.NC/build_unix
-OPENSSL_INCLUDE_PATH=C:/deps/openssl-1.0.2o/include
-OPENSSL_LIB_PATH=C:/deps/openssl-1.0.2o
+BOOST_LIB_SUFFIX=-mgw8-mt-s-x32-1_73
+BOOST_INCLUDE_PATH=C:/deps/boost_1_73_0
+BOOST_LIB_PATH=C:/deps/boost_1_73_0/stage/lib
+BDB_INCLUDE_PATH=C:/deps/db-6.2.38.NC/build_unix
+BDB_LIB_PATH=C:/deps/db-6.2.38.NC/build_unix
+OPENSSL_INCLUDE_PATH=C:/deps/openssl-1.0.2u/include
+OPENSSL_LIB_PATH=C:/deps/openssl-1.0.2u
 MINIUPNPC_INCLUDE_PATH=C:/deps/
-MINIUPNPC_LIB_PATH=C:/deps/miniupnpc-1.9
-QRENCODE_INCLUDE_PATH=C:/deps/qrencode-3.4.4
-QRENCODE_LIB_PATH=C:/deps/qrencode-3.4.4/.libs
+MINIUPNPC_LIB_PATH=C:/deps/miniupnpc-2.1
+QRENCODE_INCLUDE_PATH=C:/deps/qrencode-4.0.2
+QRENCODE_LIB_PATH=C:/deps/qrencode-4.0.2/.libs
 SECP256K1_INCLUDE_PATH=C:/deps/secp256k1/include
 SECP256K1_LIB_PATH=C:/deps/secp256k1
 }
 
-# OTHER OS
 # for boost 1.37, add -mt to the boost libraries
 # use: qmake BOOST_LIB_SUFFIX=-mt
 # for boost thread win32 with _win32 sufix
@@ -135,14 +127,15 @@ INCLUDEPATH += src/leveldb/include src/leveldb/helpers
 LIBS += $$PWD/src/leveldb/libleveldb.a $$PWD/src/leveldb/libmemenv.a
 SOURCES += src/txdb-leveldb.cpp
 !win32 {
-    # genleveldb.commands = cd $$PWD/src/leveldb && chmod 755 ./build_detect_platform && CC=$$QMAKE_CC CXX=$$QMAKE_CXX TARGET_OS=OS_WINDOWS_CROSSCOMPILE $(MAKE) OPT=\"$$QMAKE_CXXFLAGS $$QMAKE_CXXFLAGS_RELEASE\" libleveldb.a libmemenv.a && $$QMAKE_RANLIB $$PWD/src/leveldb/libleveldb.a && $$QMAKE_RANLIB $$PWD/src/leveldb/libmemenv.a
+    # we use QMAKE_CXXFLAGS_RELEASE even without RELEASE=1 because we use RELEASE to indicate linking preferences not -O preferences
+    genleveldb.commands = cd $$PWD/src/leveldb && CC=$$QMAKE_CC CXX=$$QMAKE_CXX $(MAKE) OPT=\"$$QMAKE_CXXFLAGS $$QMAKE_CXXFLAGS_RELEASE\" libleveldb.a libmemenv.a
 } else {
     # make an educated guess about what the ranlib command is called
     isEmpty(QMAKE_RANLIB) {
         QMAKE_RANLIB = $$replace(QMAKE_STRIP, strip, ranlib)
     }
     LIBS += -lshlwapi
-    # genleveldb.commands = cd $$PWD/src/leveldb && CC=$$QMAKE_CC CXX=$$QMAKE_CXX TARGET_OS=OS_WINDOWS_CROSSCOMPILE $(MAKE) OPT=\"$$QMAKE_CXXFLAGS $$QMAKE_CXXFLAGS_RELEASE\" libleveldb.a libmemenv.a && $$QMAKE_RANLIB $$PWD/src/leveldb/libleveldb.a && $$QMAKE_RANLIB $$PWD/src/leveldb/libmemenv.a
+    # genleveldb.commands = cd $$PWD/src/leveldb && chmod 755 ./build_detect_platform && CC=$$QMAKE_CC CXX=$$QMAKE_CXX TARGET_OS=OS_WINDOWS_CROSSCOMPILE $(MAKE) OPT=\"$$QMAKE_CXXFLAGS $$QMAKE_CXXFLAGS_RELEASE\" libleveldb.a libmemenv.a && $$QMAKE_RANLIB $$PWD/src/leveldb/libleveldb.a && $$QMAKE_RANLIB $$PWD/src/leveldb/libmemenv.a
 }
 genleveldb.target = $$PWD/src/leveldb/libleveldb.a
 genleveldb.depends = FORCE
@@ -212,6 +205,7 @@ DEPENDPATH += src src/json src/qt
 HEADERS += src/qt/bitcoingui.h \
     src/qt/transactiontablemodel.h \
     src/qt/addresstablemodel.h \
+    src/qt/bantablemodel.h \
     src/qt/optionsdialog.h \
     src/qt/coincontroldialog.h \
     src/qt/coincontroltreewidget.h \
@@ -220,6 +214,8 @@ HEADERS += src/qt/bitcoingui.h \
     src/qt/signverifymessagedialog.h \
     src/qt/aboutdialog.h \
     src/qt/editaddressdialog.h \
+    src/qt/importprivatekeydialog.h \
+    src/qt/editconfigdialog.h \
     src/qt/bitcoinaddressvalidator.h \
     src/alert.h \
     src/blocksizecalculator.h \
@@ -244,7 +240,7 @@ HEADERS += src/qt/bitcoingui.h \
     src/pbkdf2.h \
     src/serialize.h \
     src/support/cleanse.h \
-    src/core.h \
+    src/chain.h \
     src/main.h \
     src/miner.h \
     src/net.h \
@@ -274,6 +270,7 @@ HEADERS += src/qt/bitcoingui.h \
     src/qt/guiconstants.h \
     src/qt/optionsmodel.h \
     src/qt/monitoreddatamapper.h \
+    src/qt/peertablemodel.h \
     src/qt/trafficgraphwidget.h \
     src/qt/transactiondesc.h \
     src/qt/transactiondescdialog.h \
@@ -288,6 +285,7 @@ HEADERS += src/qt/bitcoingui.h \
     src/rpcprotocol.h \
     src/rpcserver.h \
     src/rpcvelocity.h \
+    src/limitedmap.h \
     src/qt/overviewpage.h \
     src/qt/csvmodelwriter.h \
     src/crypter.h \
@@ -309,23 +307,21 @@ HEADERS += src/qt/bitcoingui.h \
     src/tinyformat.h \
     src/stealth.h \
     src/qt/flowlayout.h \
-    src/qt/darksendconfig.h \
     src/masternode.h \
-    src/darksend.h \
-    src/darksend-relay.h \
+    src/mnengine.h \
     src/instantx.h \
     src/activemasternode.h \
     src/masternodeconfig.h \
     src/masternodeman.h \
     src/masternode-payments.h \
     src/spork.h \
-    src/crypto/common.h \
-    src/crypto/hmac_sha256.h \
-    src/crypto/hmac_sha512.h \
-    src/crypto/ripemd160.h \
-    src/crypto/sha1.h \
-    src/crypto/sha256.h \
-    src/crypto/sha512.h \
+    src/crypto/common/common.h \
+    src/crypto/common/hmac_sha256.h \
+    src/crypto/common/hmac_sha512.h \
+    src/crypto/common/ripemd160.h \
+    src/crypto/common/sha1.h \
+    src/crypto/common/sha256.h \
+    src/crypto/common/sha512.h \
     src/qt/masternodemanager.h \
     src/qt/addeditadrenalinenode.h \
     src/qt/adrenalinenodeconfigdialog.h \
@@ -335,18 +331,20 @@ HEADERS += src/qt/bitcoingui.h \
     src/qt/messagemodel.h \
     src/qt/sendmessagesdialog.h \
     src/qt/sendmessagesentry.h \
-    src/qt/miningpage.h \
     src/qt/blockbrowser.h \
     src/qt/plugins/mrichtexteditor/mrichtextedit.h \
     src/qt/qvalidatedtextedit.h \
-    src/qt/tradingdialog.h \
-    src/hashalgo/bmw/sph_bmw.h \
-    src/hashalgo/bmw/sph_types.h \
+    src/crypto/common/sph_bmw.h \
+    src/crypto/common/sph_echo.h \
+    src/crypto/common/sph_types.h \
+    src/crypto/bmw/bmw512.h \
+    src/crypto/echo/echo512.h \
     src/limitedmap.h
 
 SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
     src/qt/transactiontablemodel.cpp \
     src/qt/addresstablemodel.cpp \
+    src/qt/bantablemodel.cpp \
     src/qt/optionsdialog.cpp \
     src/qt/sendcoinsdialog.cpp \
     src/qt/coincontroldialog.cpp \
@@ -355,6 +353,8 @@ SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
     src/qt/signverifymessagedialog.cpp \
     src/qt/aboutdialog.cpp \
     src/qt/editaddressdialog.cpp \
+    src/qt/importprivatekeydialog.cpp \
+    src/qt/editconfigdialog.cpp \
     src/qt/bitcoinaddressvalidator.cpp \
     src/alert.cpp \
     src/blocksizecalculator.cpp \
@@ -374,7 +374,7 @@ SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
     src/pubkey.cpp \
     src/script.cpp \
     src/scrypt.cpp \
-    src/core.cpp \
+    src/chain.cpp \
     src/main.cpp \
     src/miner.cpp \
     src/init.cpp \
@@ -388,6 +388,7 @@ SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
     src/qt/transactionrecord.cpp \
     src/qt/optionsmodel.cpp \
     src/qt/monitoreddatamapper.cpp \
+    src/qt/peertablemodel.cpp \
     src/qt/trafficgraphwidget.cpp \
     src/qt/transactiondesc.cpp \
     src/qt/transactiondescdialog.cpp \
@@ -406,10 +407,10 @@ SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
     src/rpcmisc.cpp \
     src/rpcnet.cpp \
     src/rpcmining.cpp \
+    src/rpcvelocity.cpp \
     src/rpcwallet.cpp \
     src/rpcblockchain.cpp \
     src/rpcrawtransaction.cpp \
-    src/rpcvelocity.cpp \
     src/qt/overviewpage.cpp \
     src/qt/csvmodelwriter.cpp \
     src/crypter.cpp \
@@ -428,23 +429,21 @@ SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
     src/support/cleanse.cpp \
     src/stealth.cpp \
     src/qt/flowlayout.cpp \
-    src/qt/darksendconfig.cpp \
     src/masternode.cpp \
-    src/darksend.cpp \
-    src/darksend-relay.cpp \
-    src/rpcdarksend.cpp \
+    src/mnengine.cpp \
+    src/rpcmnengine.cpp \
     src/instantx.cpp \
     src/activemasternode.cpp \
     src/masternodeman.cpp \
     src/masternode-payments.cpp \
     src/spork.cpp \
     src/masternodeconfig.cpp \
-    src/crypto/hmac_sha256.cpp \
-    src/crypto/hmac_sha512.cpp \
-    src/crypto/ripemd160.cpp \
-    src/crypto/sha1.cpp \
-    src/crypto/sha256.cpp \
-    src/crypto/sha512.cpp \
+    src/crypto/common/hmac_sha256.cpp \
+    src/crypto/common/hmac_sha512.cpp \
+    src/crypto/common/ripemd160.cpp \
+    src/crypto/common/sha1.cpp \
+    src/crypto/common/sha256.cpp \
+    src/crypto/common/sha512.cpp \
     src/qt/masternodemanager.cpp \
     src/qt/addeditadrenalinenode.cpp \
     src/qt/adrenalinenodeconfigdialog.cpp \
@@ -454,14 +453,13 @@ SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
     src/qt/messagemodel.cpp \
     src/qt/sendmessagesdialog.cpp \
     src/qt/sendmessagesentry.cpp \
-    src/qt/miningpage.cpp \
     src/qt/blockbrowser.cpp \
     src/qt/qvalidatedtextedit.cpp \
     src/qt/plugins/mrichtexteditor/mrichtextedit.cpp \
-    src/qt/tradingdialog.cpp \
     src/rpcsmessage.cpp \
-    src/hashalgo/bmw/aes_helper.c \
-    src/hashalgo/bmw/bmw.c
+    src/crypto/common/aes_helper.c \
+    src/crypto/common/bmw.c \
+    src/crypto/common/echo.c
 
 RESOURCES += \
     src/qt/bitcoin.qrc
@@ -473,22 +471,21 @@ FORMS += \
     src/qt/forms/signverifymessagedialog.ui \
     src/qt/forms/aboutdialog.ui \
     src/qt/forms/editaddressdialog.ui \
+    src/qt/forms/importprivatekeydialog.ui \
+    src/qt/forms/editconfigdialog.ui \
     src/qt/forms/transactiondescdialog.ui \
     src/qt/forms/overviewpage.ui \
     src/qt/forms/sendcoinsentry.ui \
     src/qt/forms/askpassphrasedialog.ui \
     src/qt/forms/rpcconsole.ui \
     src/qt/forms/optionsdialog.ui \
-    src/qt/forms/darksendconfig.ui \
     src/qt/forms/masternodemanager.ui \
     src/qt/forms/addeditadrenalinenode.ui \
     src/qt/forms/adrenalinenodeconfigdialog.ui \
     src/qt/forms/messagepage.ui \
-    src/qt/forms/miningpage.ui \
     src/qt/forms/sendmessagesentry.ui \
     src/qt/forms/sendmessagesdialog.ui \
     src/qt/forms/blockbrowser.ui \
-    src/qt/forms/tradingdialog.ui \
     src/qt/plugins/mrichtexteditor/mrichtextedit.ui
 
 contains(USE_QRCODE, 1) {
@@ -620,13 +617,12 @@ INCLUDEPATH += $$BOOST_INCLUDE_PATH $$BDB_INCLUDE_PATH $$OPENSSL_INCLUDE_PATH $$
 LIBS += $$join(BOOST_LIB_PATH,,-L,) $$join(BDB_LIB_PATH,,-L,) $$join(OPENSSL_LIB_PATH,,-L,) $$join(QRENCODE_LIB_PATH,,-L,)
 LIBS += -lssl -lcrypto -lz -ldb_cxx$$BDB_LIB_SUFFIX
 # -lgdi32 has to happen after -lcrypto (see  #681)
-windows:LIBS += -lws2_32 -lshlwapi -lmswsock -lole32 -loleaut32 -luuid -lgdi32
+windows:LIBS += -lws2_32 -lshlwapi -lmswsock -lole32 -loleaut32 -luuid -lgdi32 -pthread
 !windows: {
     LIBS += -lgmp -levent
 }
 LIBS += -lboost_system$$BOOST_LIB_SUFFIX -lboost_filesystem$$BOOST_LIB_SUFFIX -lboost_program_options$$BOOST_LIB_SUFFIX -lboost_thread$$BOOST_THREAD_LIB_SUFFIX
-!windows:LIBS += -lboost_system$$BOOST_LIB_SUFFIX -lboost_filesystem$$BOOST_LIB_SUFFIX
-windows:LIBS += libboost_chrono$$BOOST_LIB_SUFFIX
+LIBS += -lboost_chrono$$BOOST_LIB_SUFFIX
 
 contains(RELEASE, 1) {
     !windows:!macx {

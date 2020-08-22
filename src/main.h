@@ -5,14 +5,15 @@
 #ifndef BITCOIN_MAIN_H
 #define BITCOIN_MAIN_H
 
-#include "core.h"
+#include "chain.h"
 #include "bignum.h"
 #include "sync.h"
 #include "txmempool.h"
 #include "net.h"
 #include "script.h"
 #include "scrypt.h"
-#include "hashalgo/bmw/hashblock.h"
+#include "crypto/bmw/bmw512.h"
+#include "crypto/echo/echo512.h"
 #include "fork.h"
 #include "genesis.h"
 #include "mining.h"
@@ -31,11 +32,11 @@ class CWallet;
 /** The maximum allowed multiple for the computed block size */
 static const unsigned int MAX_BLOCK_SIZE_INCREASE_MULTIPLE = 2;
 /** The number of blocks to consider in the computation of median block size */
-static const unsigned int NUM_BLOCKS_FOR_MEDIAN_BLOCK = 125;
+static const unsigned int NUM_BLOCKS_FOR_MEDIAN_BLOCK = 25;
 /** The maximum allowed size for a serialized block, in bytes (network rule) */
-static unsigned int MAX_BLOCK_SIZE = 80000000;
+static unsigned int MAX_BLOCK_SIZE = 15256128;
 /** The minimum allowed size for a serialized block, in bytes (network rule) */
-static const unsigned int MIN_BLOCK_SIZE = 8000000;
+static const unsigned int MIN_BLOCK_SIZE = 1525612;
 /** The maximum size for mined blocks */
 static const unsigned int MAX_BLOCK_SIZE_GEN = MAX_BLOCK_SIZE/2;
 /** Default for -blockprioritysize, maximum space for zero/low-fee transactions **/
@@ -61,7 +62,7 @@ static const int64_t MIN_TX_COUNT = 0;
 /** Minimum TX value (for relaying) */
 static const int64_t MIN_TX_VALUE = 0.01 * COIN;
 /** No amount larger than this (in satoshi) is valid */
-static const int64_t MAX_SINGLE_TX = 38800000000 * COIN; // 38.8 Billion RuBiX coins
+static const int64_t MAX_SINGLE_TX = 38800000000 * COIN; // 38,800,000,000 RuBiX coins
 /** Moneyrange params */
 inline bool MoneyRange(int64_t nValue) { return (nValue >= 0 && nValue <= MAX_SINGLE_TX); }
 /** Threshold for nLockTime: below this value it is interpreted as block number, otherwise as UNIX timestamp. */
@@ -128,14 +129,12 @@ void UnregisterAllWallets();
 void SyncWithWallets(const CTransaction& tx, const CBlock* pblock = NULL, bool fConnect = true, bool fFixSpentCoins = false);
 /** Ask wallets to resend their transactions */
 void ResendWalletTransactions(bool fForce = false);
-
 /** Register with a network node to receive its signals */
 void RegisterNodeSignals(CNodeSignals& nodeSignals);
 /** Unregister a network node */
 void UnregisterNodeSignals(CNodeSignals& nodeSignals);
 
 void PushGetBlocks(CNode* pnode, CBlockIndex* pindexBegin, uint256 hashEnd);
-
 bool ProcessBlock(CNode* pfrom, CBlock* pblock);
 bool CheckDiskSpace(uint64_t nAdditionalBytes=0);
 FILE* OpenBlockFile(unsigned int nFile, unsigned int nBlockPos, const char* pszMode="rb");
@@ -146,7 +145,6 @@ CBlockIndex* FindBlockByHeight(int nHeight);
 bool ProcessMessages(CNode* pfrom);
 bool SendMessages(CNode* pto, bool fSendTrickle);
 void ThreadImport(std::vector<boost::filesystem::path> vImportFiles);
-
 bool CheckProofOfWork(uint256 hash, unsigned int nBits);
 bool IsInitialBlockDownload();
 bool IsConfirmedInNPrevBlocks(const CTxIndex& txindex, const CBlockIndex* pindexFrom, int nMaxDepth, int& nActualDepth);
@@ -159,10 +157,10 @@ void ThreadStakeMiner(CWallet *pwallet);
 
 /** (try to) add transaction to memory pool **/
 bool AcceptToMemoryPool(CTxMemPool& pool, CTransaction &tx, bool fLimitFree,
-                        bool* pfMissingInputs, bool fRejectrubixFee=false, bool ignoreFees=false, bool fFixSpentCoins = false);
+                        bool* pfMissingInputs, bool fRejectinsaneFee=false, bool ignoreFees=false, bool fFixSpentCoins=false);
 
 bool AcceptableInputs(CTxMemPool& pool, const CTransaction &txo, bool fLimitFree,
-                        bool* pfMissingInputs, bool fRejectrubixFee=false, bool isDSTX=false);
+                        bool* pfMissingInputs, bool fRejectinsaneFee=false, bool isDSTX=false);
 
 
 bool FindTransactionsByDestination(const CTxDestination &dest, std::vector<uint256> &vtxhash);
@@ -546,7 +544,7 @@ public:
     int GetDepthInMainChain(bool enableIX=true) const { CBlockIndex *pindexRet; return GetDepthInMainChain(pindexRet, enableIX); }
     bool IsInMainChain() const { CBlockIndex *pindexRet; return GetDepthInMainChainINTERNAL(pindexRet) > 0; }
     int GetBlocksToMaturity() const;
-    bool AcceptToMemoryPool(bool fLimitFree=true, bool fRejectrubixFee=true, bool ignoreFees=false);
+    bool AcceptToMemoryPool(bool fLimitFree=true, bool fRejectInsaneFee=true, bool ignoreFees=false);
     int GetTransactionLockSignatures() const;
     bool IsTransactionLockTimedOut() const;
 };
@@ -696,7 +694,15 @@ public:
 
     uint256 GetHash() const
     {
-        return HashBmw512(BEGIN(nVersion), END(nNonce));
+        if (nVersion > 6)
+            return Hash_bmw512(BEGIN(nVersion), END(nNonce));
+        else
+            return GetPoWHash();
+    }
+
+    uint256 GetPoWHash() const
+    {
+     return Hash_bmw512(BEGIN(nVersion), END(nNonce));
     }
 
     int64_t GetBlockTime() const
@@ -837,7 +843,7 @@ public:
         }
 
         // Check the header
-        if (fReadTransactions && IsProofOfWork() && !CheckProofOfWork(GetHash(), nBits))
+        if (fReadTransactions && IsProofOfWork() && !CheckProofOfWork(GetPoWHash(), nBits))
             return error("CBlock::ReadFromDisk() : errors in block header");
 
         return true;

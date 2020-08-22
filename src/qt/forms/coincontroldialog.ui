@@ -14,8 +14,7 @@
    <string>Coin Control</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">color: rgb(204, 155, 68);
-background-color: rgb(16, 16, 16);</string>
+   <string notr="true"/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -145,7 +144,7 @@ background-color: rgb(16, 16, 16);</string>
           <enum>Qt::ActionsContextMenu</enum>
          </property>
          <property name="text">
-          <string notr="true">0.00 TX</string>
+          <string notr="true">0.00 CCASH</string>
          </property>
          <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
@@ -225,7 +224,7 @@ background-color: rgb(16, 16, 16);</string>
           <enum>Qt::ActionsContextMenu</enum>
          </property>
          <property name="text">
-          <string notr="true">0.00 TX</string>
+          <string notr="true">0.00 CCASH</string>
          </property>
          <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
@@ -311,7 +310,7 @@ background-color: rgb(16, 16, 16);</string>
           <enum>Qt::ActionsContextMenu</enum>
          </property>
          <property name="text">
-          <string notr="true">0.00 TX</string>
+          <string notr="true">0.00 CCASH</string>
          </property>
          <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
@@ -349,7 +348,7 @@ background-color: rgb(16, 16, 16);</string>
           <enum>Qt::ActionsContextMenu</enum>
          </property>
          <property name="text">
-          <string notr="true">0.00 TX</string>
+          <string notr="true">0.00 CCASH</string>
          </property>
          <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
@@ -383,7 +382,7 @@ background-color: rgb(16, 16, 16);</string>
         <height>41</height>
        </rect>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayoutPanel" stretch="0,0,0,0">
+      <layout class="QHBoxLayout" name="horizontalLayoutPanel" stretch="0,0,0,0,0">
        <property name="spacing">
         <number>14</number>
        </property>
@@ -400,6 +399,22 @@ background-color: rgb(16, 16, 16);</string>
          </property>
         </widget>
        </item>
+        <item>
+         <widget class="QPushButton" name="pushButtonToggleLock">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>toggle lock state</string>
+          </property>
+          <property name="autoDefault">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
        <item>
         <widget class="QRadioButton" name="radioTreeMode">
          <property name="sizePolicy">
@@ -429,6 +444,13 @@ background-color: rgb(16, 16, 16);</string>
          </property>
         </widget>
        </item>
+        <item>
+         <widget class="QLabel" name="labelLocked">
+          <property name="text">
+           <string>(1 locked)</string>
+          </property>
+         </widget>
+        </item>
        <item>
         <spacer name="horizontalSpacer">
          <property name="orientation">
@@ -485,7 +507,7 @@ background-color: rgb(16, 16, 16);</string>
      </column>
      <column>
       <property name="text">
-       <string>Darksend Rounds</string>
+       <string>MNengine Rounds</string>
       </property>
      </column>
      <column>

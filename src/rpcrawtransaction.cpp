@@ -607,7 +607,7 @@ Value searchrawtransactions(const Array &params, bool fHelp)
 
     CRuBiXAddress address(params[0].get_str());
     if (!address.IsValid())
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Bitcoin address");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid RuBiX address");
     CTxDestination dest = address.Get();
 
     std::vector<uint256> vtxhash;
