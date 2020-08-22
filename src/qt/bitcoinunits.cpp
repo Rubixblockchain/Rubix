@@ -18,9 +18,9 @@ RuBiXUnits::RuBiXUnits(QObject *parent):
 QList<RuBiXUnits::Unit> RuBiXUnits::availableUnits()
 {
     QList<RuBiXUnits::Unit> unitlist;
-    unitlist.append(CCASH);
-    unitlist.append(mCCASH);
-    unitlist.append(uCCASH);
+    unitlist.append(RBX);
+    unitlist.append(mRBX);
+    unitlist.append(uRBX);
     return unitlist;
 }
 
@@ -28,9 +28,9 @@ bool RuBiXUnits::valid(int unit)
 {
     switch(unit)
     {
-    case CCASH:
-    case mCCASH:
-    case uCCASH:
+    case RBX:
+    case mRBX:
+    case uRBX:
         return true;
     default:
         return false;
@@ -41,9 +41,9 @@ QString RuBiXUnits::name(int unit)
 {
     switch(unit)
     {
-    case CCASH: return QString("CCASH");
-    case mCCASH: return QString("mCCASH");
-    case uCCASH: return QString::fromUtf8("μCCASH");
+    case RBX: return QString("RBX");
+    case mRBX: return QString("mRBX");
+    case uRBX: return QString::fromUtf8("μRBX");
     default: return QString("???");
     }
 }
@@ -52,9 +52,9 @@ QString RuBiXUnits::description(int unit)
 {
     switch(unit)
     {
-    case CCASH: return QString("RuBiXs");
-    case mCCASH: return QString("Milli-RuBiXs (1 / 1,000)");
-    case uCCASH: return QString("Micro-RuBiXs (1 / 1,000,000)");
+    case RBX: return QString("RuBiXs");
+    case mRBX: return QString("Milli-RuBiXs (1 / 1,000)");
+    case uRBX: return QString("Micro-RuBiXs (1 / 1,000,000)");
     default: return QString("???");
     }
 }
@@ -63,9 +63,9 @@ qint64 RuBiXUnits::factor(int unit)
 {
     switch(unit)
     {
-    case CCASH:  return 100000000;
-    case mCCASH: return 100000;
-    case uCCASH: return 100;
+    case RBX:  return 100000000;
+    case mRBX: return 100000;
+    case uRBX: return 100;
     default:   return 100000000;
     }
 }
@@ -74,9 +74,9 @@ int RuBiXUnits::amountDigits(int unit)
 {
     switch(unit)
     {
-    case CCASH: return 11;  // 21,000,000,000         (# digits, without commas)
-    case mCCASH: return 14; // 21,000,000,000,000
-    case uCCASH: return 17; // 21,000,000,000,000,000
+    case RBX: return 11;  // 21,000,000,000         (# digits, without commas)
+    case mRBX: return 14; // 21,000,000,000,000
+    case uRBX: return 17; // 21,000,000,000,000,000
     default: return 0;
     }
 }
@@ -85,9 +85,9 @@ int RuBiXUnits::decimals(int unit)
 {
     switch(unit)
     {
-    case CCASH: return 8;
-    case mCCASH: return 5;
-    case uCCASH: return 2;
+    case RBX: return 8;
+    case mRBX: return 5;
+    case uRBX: return 2;
     default: return 0;
     }
 }

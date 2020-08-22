@@ -53,7 +53,7 @@ void OptionsModel::Init()
 
     // Display
     if (!settings.contains("nDisplayUnit"))
-        settings.setValue("nDisplayUnit", RuBiXUnits::CCASH);
+        settings.setValue("nDisplayUnit", RuBiXUnits::RBX);
     nDisplayUnit = settings.value("nDisplayUnit").toInt();
     
     fUseDarkTheme = settings.value("fUseDarkTheme", false).toBool();

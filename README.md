@@ -1,9 +1,9 @@
-RuBiX [CCASH] 2020
+RuBiX [RBX] 2020
 ===========================================================================================
 
 http://rubix.org/
 
-What is the RuBiX [CCASH] Blockchain?
+What is the RuBiX [RBX] Blockchain?
 -----------------------------------------
 *TODO: Update documentation regarding implemented tech as this section is out of date and much progress and upgrades have been made to mentioned sections...*
 
@@ -11,11 +11,11 @@ What is the RuBiX [CCASH] Blockchain?
 RuBiX is a blockchain project with the goal of offering secured messaging, Darksend, masternodes and an overall pleasing experience to the user.
 
 ### Blockchain Technology
-The RuBiX [CCASH] Blockchain is an experimental smart contract platform protocol that enables 
+The RuBiX [RBX] Blockchain is an experimental smart contract platform protocol that enables 
 instant payments to anyone, anywhere in the world in a private, secure manner. 
-RuBiX [CCASH] uses peer-to-peer blockchain technology developed by RuBiX to operate
+RuBiX [RBX] uses peer-to-peer blockchain technology developed by RuBiX to operate
 with no central authority: managing transactions, execution of contracts, and 
-issuing money are carried out collectively by the network. RuBiX [CCASH] is the name of 
+issuing money are carried out collectively by the network. RuBiX [RBX] is the name of 
 open source software which enables the use of this protocol.
 
 ### Custom Difficulty Retarget Algorithm “VRX”
@@ -107,12 +107,12 @@ cd ~; cd ~/RuBiX; qmake -qt=qt5 USE_UPNP=-; make
 
 ### Create config file for daemon
 ```
-cd ~; sudo ufw allow 19427/tcp; sudo ufw allow 18695/tcp; sudo ufw allow 22/tcp; sudo mkdir ~/.CCASH; cat << "CONFIG" >> ~/.CCASH/RuBiX.conf
+cd ~; sudo ufw allow 19427/tcp; sudo ufw allow 18695/tcp; sudo ufw allow 22/tcp; sudo mkdir ~/.RBX; cat << "CONFIG" >> ~/.RBX/RuBiX.conf
 listen=1
 server=1
 daemon=1
 testnet=0
-rpcuser=CCASHrpcuser
+rpcuser=RBXrpcuser
 rpcpassword=SomeCrazyVeryVerySecurePasswordHere
 rpcport=18695
 port=19427
@@ -133,7 +133,7 @@ addnode=82.165.119.20
 addnode=82.165.115.26:19427
 addnode=82.165.115.26
 CONFIG
-chmod 700 ~/.CCASH/RuBiX.conf; chmod 700 ~/.CCASH; ls -la ~/.CCASH
+chmod 700 ~/.RBX/RuBiX.conf; chmod 700 ~/.RBX; ls -la ~/.RBX
 ```
 
 ### Run RuBiX daemon
@@ -157,7 +157,7 @@ cd ~; cp -r ~/RuBiX/src/RuBiXd /usr/local/bin
 License
 -------
 
-RuBiX [CCASH] is released under the terms of the MIT license. See [COPYING](COPYING) for more
+RuBiX [RBX] is released under the terms of the MIT license. See [COPYING](COPYING) for more
 information or see https://opensource.org/licenses/MIT.
 
 Development Process
@@ -165,7 +165,7 @@ Development Process
 
 The `master` branch is regularly built and tested, but is not guaranteed to be
 completely stable. [Tags](https://github.com/SaltineChips/RuBiX/Tags) are created
-regularly to indicate new official, stable release versions of RuBiX [CCASH].
+regularly to indicate new official, stable release versions of RuBiX [RBX].
 
 The contribution workflow is described in [CONTRIBUTING.md](CONTRIBUTING.md).
 

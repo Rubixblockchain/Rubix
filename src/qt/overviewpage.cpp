@@ -25,7 +25,7 @@ class TxViewDelegate : public QAbstractItemDelegate
 {
     Q_OBJECT
 public:
-    TxViewDelegate(): QAbstractItemDelegate(), unit(RuBiXUnits::CCASH)
+    TxViewDelegate(): QAbstractItemDelegate(), unit(RuBiXUnits::RBX)
     {
 
     }
@@ -263,7 +263,7 @@ void OverviewPage::setWalletModel(WalletModel *model)
         connect(model, SIGNAL(notifyWatchonlyChanged(bool)), this, SLOT(updateWatchOnlyLabels(bool)));
     }
 
-    // update the display unit, to not use the default ("CCASH")
+    // update the display unit, to not use the default ("RBX")
     updateDisplayUnit();
 }
 

@@ -44,7 +44,7 @@ void QRCodeDialog::setModel(OptionsModel *model)
     if (model)
         connect(model, SIGNAL(displayUnitChanged(int)), this, SLOT(updateDisplayUnit()));
 
-    // update the display unit, to not use the default ("CCASH")
+    // update the display unit, to not use the default ("RBX")
     updateDisplayUnit();
 }
 
@@ -92,8 +92,8 @@ QString QRCodeDialog::getURI()
     {
         if (ui->lnReqAmount->validate())
         {
-            // even if we allow a non CCASH unit input in lnReqAmount, we generate the URI with CCASH as unit (as defined in BIP21)
-            ret += QString("?amount=%1").arg(RuBiXUnits::format(RuBiXUnits::CCASH, ui->lnReqAmount->value()));
+            // even if we allow a non RBX unit input in lnReqAmount, we generate the URI with RBX as unit (as defined in BIP21)
+            ret += QString("?amount=%1").arg(RuBiXUnits::format(RuBiXUnits::RBX, ui->lnReqAmount->value()));
             paramCount++;
         }
         else

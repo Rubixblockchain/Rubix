@@ -52,9 +52,9 @@ public:
      */
     enum Unit
     {
-        CCASH,
-        mCCASH,
-        uCCASH
+        RBX,
+        mRBX,
+        uRBX
     };
 
     enum SeparatorStyle

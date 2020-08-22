@@ -425,9 +425,9 @@ unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfS
 // Coin base subsidy
 //
 //
-// Reward calculations for 25-years of CCASH emissions
+// Reward calculations for 25-years of RBX emissions
 // 10 Billion Total     | 8 Billion Premine
-// 100% Remaining CCASH   : 2,000,000,000
+// 100% Remaining RBX   : 2,000,000,000
 // ----------------------------------
 // Block numbers based on 2-minute blocktime average
 // (Not including initial 250 starting blocks)
@@ -436,16 +436,16 @@ unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfS
 // Blocks per year      : 262,800
 // ----------------------------------
 // 100% for Calculations: 720 blocks per day
-// Payout per block     : 300 CCASH
-// Payout per day       : 300 * ((1 * 60 * 60) / (2 * 60) * 24)                   =       216,000 CCASH
-// Payout per month     : 300 * (((1 * 60 * 60) / (2 * 60) * 24) * 30)            =     6,480,000 CCASH
-// Payout per year      : 300 * (((1 * 60 * 60) / (2 * 60) * 24) * 365)           =    78,840,000 CCASH
-// Mineout              : 300 * (25.36 * (((1 * 60 * 60) / (2 * 60) * 24) * 365)) = 2,000,000,000 CCASH
+// Payout per block     : 300 RBX
+// Payout per day       : 300 * ((1 * 60 * 60) / (2 * 60) * 24)                   =       216,000 RBX
+// Payout per month     : 300 * (((1 * 60 * 60) / (2 * 60) * 24) * 30)            =     6,480,000 RBX
+// Payout per year      : 300 * (((1 * 60 * 60) / (2 * 60) * 24) * 365)           =    78,840,000 RBX
+// Mineout              : 300 * (25.36 * (((1 * 60 * 60) / (2 * 60) * 24) * 365)) = 2,000,000,000 RBX
 // ----------------------------------
 // (Network Allocation) (BLOCKS | 25-Years of minting)
-// Singular Payout      : 150-->50 CCASH
-// Maternode Payout     : 100-->200 CCASH
-// DevOps Payout        : 50 CCASH
+// Singular Payout      : 150-->50 RBX
+// Maternode Payout     : 100-->200 RBX
+// DevOps Payout        : 50 RBX
 // ----------------------------------
 // (PLEASE NOTE)
 // Masternode Payout is calculated based on the assumption of starting payout date of Masternode Payout and
@@ -558,7 +558,7 @@ int64_t GetMasternodePayment(int nHeight, int64_t blockValue)
     // Define values
     int64_t ret2 = 0;
     if(pindexBest->GetBlockTime() > 1596024000) {
-    ret2 = 42 * COIN; // 42 CCASH
+    ret2 = 42 * COIN; // 42 RBX
     }
 
     return ret2;
@@ -571,7 +571,7 @@ int64_t GetDevOpsPayment(int nHeight, int64_t blockValue)
 {
     int64_t ret2 = 0;
     if(pindexBest->GetBlockTime() > 1596024000) {
-    ret2 = 12.5 * COIN; // 12.5 CCASH per block = 10% of blocks.
+    ret2 = 12.5 * COIN; // 12.5 RBX per block = 10% of blocks.
     }
 
     if(pindexBest->GetBlockTime() < 1596304801) {

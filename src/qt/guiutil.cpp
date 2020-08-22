@@ -138,7 +138,7 @@ bool parseRuBiXURI(const QUrl &uri, SendCoinsRecipient *out)
         {
             if(!i->second.isEmpty())
             {
-                if(!RuBiXUnits::parse(RuBiXUnits::CCASH, i->second, &rv.amount))
+                if(!RuBiXUnits::parse(RuBiXUnits::RBX, i->second, &rv.amount))
                 {
                     return false;
                 }

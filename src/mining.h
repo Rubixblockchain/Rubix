@@ -16,7 +16,7 @@ static const unsigned int nModifierInterval = 2 * 60;
 /** Genesis block subsidy */
 static const int64_t nGenesisBlockReward = 1 * COIN;
 /** Reserve block subsidy */
-static const int64_t nBlockRewardReserve = 2000000 * COIN; // premine 200,000,000 CCASH
+static const int64_t nBlockRewardReserve = 2000000 * COIN; // premine 200,000,000 RBX
 /** Standard block subsidy */
 static const int64_t nBlockStandardReward = 125 * COIN; // Tier 2 will create it's own nStandardReward
 /** Block spacing preferred */
@@ -32,7 +32,7 @@ static const int64_t MNengine_COLLATERAL = (1 * COIN);
 /** MNengine pool values */
 static const int64_t MNengine_POOL_MAX = (999 * COIN);
 /** MasterNode required collateral */
-inline int64_t MasternodeCollateral(int nHeight) { return 250000; } // .25 Million CCASH required as collateral
+inline int64_t MasternodeCollateral(int nHeight) { return 250000; } // .25 Million RBX required as collateral
 /** Coinbase transaction outputs can only be staked after this number of new blocks (network rule) */
 static const int nStakeMinConfirmations = 5;
 /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
